@@ -11,7 +11,7 @@ npm.cmd install
 npm.cmd run dev
 ```
 
-Open http://localhost:3000. Without Supabase configuration, sign-up and sign-in use a local demo account store in `.data/auth.json`; course and assessment progress is saved in this browser. This mode is for local demos and is not suitable for deployment or shared accounts.
+Open https://placementtraining.vercel.app/. Without Supabase configuration, sign-up and sign-in use a local demo account store in `.data/auth.json`; course and assessment progress is saved in this browser. This mode is for local demos and is not suitable for deployment or shared accounts.
 
 ## Optional Supabase setup
 
