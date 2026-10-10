@@ -107,43 +107,58 @@ Return a STRICT JSON object (no markdown surrounding the json if possible, or in
 }
 `;
 
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a top-tier ATS Resume Analyzer and Executive Technical Recruiter. Always respond with valid JSON matching the requested schema.",
+  const candidateModels = [
+    "openai/gpt-oss-120b",
+    "openai/gpt-oss-20b",
+    "llama-3.3-70b-versatile",
+    "llama-3.1-70b-versatile",
+  ];
+
+  for (const model of candidateModels) {
+    try {
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
         },
-        { role: "user", content: prompt },
-      ],
-      temperature: 0.2,
-      response_format: { type: "json_object" },
-    }),
-  });
+        body: JSON.stringify({
+          model,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a top-tier ATS Resume Analyzer and Executive Technical Recruiter. Always respond with valid JSON matching the requested schema strictly.",
+            },
+            { role: "user", content: prompt },
+          ],
+          temperature: 0.2,
+          response_format: { type: "json_object" },
+        }),
+      });
 
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.error("Groq API error response:", errorText);
-    return null;
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.warn(`Groq API error on model ${model}:`, errorText);
+        continue;
+      }
+
+      const data = await res.json();
+      const rawContent = data.choices?.[0]?.message?.content;
+      if (!rawContent) continue;
+
+      try {
+        return JSON.parse(rawContent);
+      } catch (e) {
+        const cleanJson = rawContent.replace(/```json/g, "").replace(/```/g, "").trim();
+        return JSON.parse(cleanJson);
+      }
+    } catch (err) {
+      console.warn(`Groq invocation attempt error on model ${model}:`, err);
+    }
   }
 
-  const data = await res.json();
-  const rawContent = data.choices?.[0]?.message?.content;
-  if (!rawContent) return null;
-
-  try {
-    return JSON.parse(rawContent);
-  } catch (e) {
-    const cleanJson = rawContent.replace(/```json/g, "").replace(/```/g, "").trim();
-    return JSON.parse(cleanJson);
-  }
+  return null;
 }
 
 /* =========================================================================
@@ -347,3 +362,4 @@ function generateIntelligentAtsAnalysis(resumeText: string, jobDescription?: str
     ],
   };
 }
+
