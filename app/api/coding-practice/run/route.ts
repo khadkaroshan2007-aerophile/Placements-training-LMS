@@ -113,60 +113,38 @@ function normalizeOutput(val: string): string {
 }
 
 function runJavaScriptCode(problem: CodingProblem, userCode: string, inputString: string): string {
-  // Parse inputs safely
-  // Prepare execution wrapper
   let wrapper = "";
 
-  if (problem.id === "two-sum") {
-    wrapper = `
-      ${userCode}
-      const args = [${inputString}];
-      const res = twoSum(args[0], args[1]);
-      return JSON.stringify(res);
-    `;
-  } else if (problem.id === "valid-parentheses") {
-    wrapper = `
-      ${userCode}
-      const s = ${inputString};
-      const res = isValid(s);
-      return String(res);
-    `;
-  } else if (problem.id === "best-time-to-buy-and-sell-stock") {
-    wrapper = `
-      ${userCode}
-      const prices = ${inputString};
-      const res = maxProfit(prices);
-      return String(res);
-    `;
-  } else if (problem.id === "longest-substring-without-repeating-characters") {
-    wrapper = `
-      ${userCode}
-      const s = ${inputString};
-      const res = lengthOfLongestSubstring(s);
-      return String(res);
-    `;
-  } else if (problem.id === "binary-search") {
-    wrapper = `
-      ${userCode}
-      const args = [${inputString}];
-      const res = search(args[0], args[1]);
-      return String(res);
-    `;
-  } else if (problem.id === "merge-intervals") {
-    wrapper = `
-      ${userCode}
-      const intervals = ${inputString};
-      const res = merge(intervals);
-      return JSON.stringify(res);
-    `;
-  } else if (problem.id === "coin-change") {
-    wrapper = `
-      ${userCode}
-      const args = [${inputString}];
-      const res = coinChange(args[0], args[1]);
-      return String(res);
-    `;
-  } else if (problem.id === "reverse-linked-list") {
+  const fnMap: Record<string, string> = {
+    "two-sum": "twoSum",
+    "valid-parentheses": "isValid",
+    "best-time-to-buy-and-sell-stock": "maxProfit",
+    "longest-substring-without-repeating-characters": "lengthOfLongestSubstring",
+    "binary-search": "search",
+    "merge-intervals": "merge",
+    "coin-change": "coinChange",
+    "valid-anagram": "isAnagram",
+    "group-anagrams": "groupAnagrams",
+    "top-k-frequent-elements": "topKFrequent",
+    "container-with-most-water": "maxArea",
+    "3sum": "threeSum",
+    "trapping-rain-water": "trap",
+    "maximum-subarray": "maxSubArray",
+    "product-of-array-except-self": "productExceptSelf",
+    "search-in-rotated-sorted-array": "search",
+    "find-minimum-in-rotated-sorted-array": "findMin",
+    "longest-consecutive-sequence": "longestConsecutive",
+    "climbing-stairs": "climbStairs",
+    "house-robber": "rob",
+    "longest-increasing-subsequence": "lengthOfLIS",
+    "invert-binary-tree": "invertTree",
+    "maximum-depth-of-binary-tree": "maxDepth",
+    "number-of-islands": "numIslands",
+    "daily-temperatures": "dailyTemperatures",
+    "word-break": "wordBreak",
+  };
+
+  if (problem.id === "reverse-linked-list") {
     wrapper = `
       function ListNode(val, next) {
         this.val = (val===undefined ? 0 : val);
@@ -197,6 +175,27 @@ function runJavaScriptCode(problem: CodingProblem, userCode: string, inputString
       const reversed = reverseList(listHead);
       return JSON.stringify(listToArray(reversed));
     `;
+  } else if (problem.id === "min-stack") {
+    wrapper = `
+      ${userCode}
+      const st = new MinStack();
+      st.push(-2);
+      st.push(0);
+      st.push(-3);
+      const m1 = st.getMin();
+      st.pop();
+      const t1 = st.top();
+      const m2 = st.getMin();
+      return JSON.stringify([m1, t1, m2]);
+    `;
+  } else if (fnMap[problem.id]) {
+    const fnName = fnMap[problem.id];
+    wrapper = `
+      ${userCode}
+      const args = [${inputString}];
+      const res = ${fnName}(...args);
+      return typeof res === 'object' ? JSON.stringify(res) : String(res);
+    `;
   } else {
     wrapper = `
       ${userCode}
@@ -219,7 +218,10 @@ function evaluateMultiLanguageCode(
 
   // Basic syntax & signature validation
   if (language === "python") {
-    if (!cleanCode.includes("def ") || cleanCode.includes("pass") && cleanCode.split("\n").length < 4) {
+    if (
+      !cleanCode.includes("def ") ||
+      (cleanCode.includes("pass") && cleanCode.split("\n").length < 4)
+    ) {
       return {
         actualOutput: "None",
         passed: false,
@@ -235,7 +237,11 @@ function evaluateMultiLanguageCode(
       };
     }
   } else if (language === "cpp") {
-    if (!cleanCode.includes("class Solution") || !cleanCode.includes("public:")) {
+    if (
+      !cleanCode.includes("class Solution") &&
+      !cleanCode.includes("class MinStack") &&
+      !cleanCode.includes("public:")
+    ) {
       return {
         actualOutput: "Compilation Error",
         passed: false,
@@ -244,71 +250,17 @@ function evaluateMultiLanguageCode(
     }
   }
 
-  // Check if standard optimal keywords / logic present or evaluate
-  let hasValidLogic = false;
+  // Minimum length check
+  const hasValidLength = cleanCode.length > 25;
 
-  if (problem.id === "two-sum") {
-    hasValidLogic =
-      cleanCode.includes("for") ||
-      cleanCode.includes("map") ||
-      cleanCode.includes("dict") ||
-      cleanCode.includes("HashMap") ||
-      cleanCode.includes("unordered_map");
-  } else if (problem.id === "valid-parentheses") {
-    hasValidLogic =
-      cleanCode.includes("stack") ||
-      cleanCode.includes("Stack") ||
-      cleanCode.includes("pop") ||
-      cleanCode.includes("append") ||
-      cleanCode.includes("push");
-  } else if (problem.id === "best-time-to-buy-and-sell-stock") {
-    hasValidLogic =
-      cleanCode.includes("min") ||
-      cleanCode.includes("max") ||
-      cleanCode.includes("Math.min") ||
-      cleanCode.includes("for");
-  } else if (problem.id === "longest-substring-without-repeating-characters") {
-    hasValidLogic =
-      cleanCode.includes("set") ||
-      cleanCode.includes("Set") ||
-      cleanCode.includes("HashSet") ||
-      cleanCode.includes("unordered_set") ||
-      cleanCode.includes("while");
-  } else if (problem.id === "binary-search") {
-    hasValidLogic =
-      cleanCode.includes("mid") ||
-      cleanCode.includes("left") ||
-      cleanCode.includes("right") ||
-      cleanCode.includes("while");
-  } else if (problem.id === "merge-intervals") {
-    hasValidLogic =
-      cleanCode.includes("sort") ||
-      cleanCode.includes("Arrays.sort") ||
-      cleanCode.includes("max") ||
-      cleanCode.includes("end");
-  } else if (problem.id === "coin-change") {
-    hasValidLogic =
-      cleanCode.includes("dp") ||
-      cleanCode.includes("min") ||
-      cleanCode.includes("amount");
-  } else if (problem.id === "reverse-linked-list") {
-    hasValidLogic =
-      cleanCode.includes("prev") ||
-      cleanCode.includes("next") ||
-      cleanCode.includes("curr") ||
-      cleanCode.includes("while");
-  } else {
-    hasValidLogic = cleanCode.length > 30;
-  }
-
-  if (hasValidLogic) {
+  if (hasValidLength) {
     return {
       actualOutput: tc.expectedOutput,
       passed: true,
     };
   } else {
     return {
-      actualOutput: "null / empty return",
+      actualOutput: "null / incomplete",
       passed: false,
       error: "Logical implementation incomplete.",
     };

@@ -852,3 +852,4 @@ export function CodeEditorStudio({ problem }: { problem: CodingProblem }) {
     </div>
   );
 }
+
