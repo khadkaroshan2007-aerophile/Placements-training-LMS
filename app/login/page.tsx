@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
 import { ArrowLeft, ArrowRight, BookOpenCheck, Sparkles } from "lucide-react";
 import { clearAllResidualAndGuestData, initFreshUserProgress, setActiveUserScope } from "@/lib/user-progress-storage";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 function AuthForm() {
   const router = useRouter();
@@ -50,15 +51,18 @@ function AuthForm() {
       router.push("/dashboard");
       router.refresh();
     } catch {
-      setError("Could not connect to the server. Please try again.");
+      setError("Could not connect to the server. Please try signing out again.");
     } finally {
       setBusy(false);
     }
   }
 
-  return <main className="auth-page">
-    <Link href="/" className="auth-back"><ArrowLeft size={15} /> Back to home</Link>
-    <section className="auth-card">
+  return <main className="auth-page animate-fade-in">
+    <div className="auth-top-nav">
+      <Link href="/" className="auth-back"><ArrowLeft size={15} /> Back to home</Link>
+      <ThemeToggle compact />
+    </div>
+    <section className="auth-card animate-scale-in">
       <Link href="/" className="brand auth-brand"><span className="brand-mark"><Sparkles size={18} /></span><span>PlacePrep AI</span></Link>
       <div className="auth-heading"><span className="auth-icon"><BookOpenCheck size={20} /></span><div className="eyebrow">YOUR CAREER, IN FOCUS</div><h1>{mode === "register" ? "Create your account" : "Welcome back"}</h1><p>{mode === "register" ? "Start a fresh account and make your next step count." : "Sign in to continue your placement journey."}</p></div>
       <div className="auth-tabs" role="tablist" aria-label="Account access"><button type="button" role="tab" aria-selected={mode === "login"} className={mode === "login" ? "selected" : ""} onClick={() => { setMode("login"); setError(""); }}>Sign in</button><button type="button" role="tab" aria-selected={mode === "register"} className={mode === "register" ? "selected" : ""} onClick={() => { setMode("register"); setError(""); }}>Create account</button></div>

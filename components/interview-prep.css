@@ -1202,3 +1202,97 @@
     gap: 16px;
   }
 }
+
+/* Dark Mode Theme Support for Interview Prep Suite */
+[data-theme="dark"] .lobby-card,
+.dark .lobby-card,
+[data-theme="dark"] .interview-step-card,
+.dark .interview-step-card,
+[data-theme="dark"] .proctor-pane,
+.dark .proctor-pane,
+[data-theme="dark"] .report-card,
+.dark .report-card,
+[data-theme="dark"] .eval-breakdown-card,
+.dark .eval-breakdown-card {
+  background: var(--card-bg, #131b2e);
+  border-color: var(--card-border, #222d4a);
+  color: var(--ink, #f1f5f9);
+}
+
+[data-theme="dark"] .lobby-track-btn,
+.dark .lobby-track-btn,
+[data-theme="dark"] .rule-box,
+.dark .rule-box,
+[data-theme="dark"] .device-check-item,
+.dark .device-check-item {
+  background: #162038;
+  border-color: #263354;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .lobby-track-btn strong,
+.dark .lobby-track-btn strong,
+[data-theme="dark"] .rule-body strong,
+.dark .rule-body strong {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .lobby-track-btn:hover,
+.dark .lobby-track-btn:hover {
+  background: rgba(124, 114, 248, 0.16);
+  border-color: var(--purple, #7c72f8);
+}
+
+[data-theme="dark"] .lobby-track-btn.selected,
+.dark .lobby-track-btn.selected {
+  background: rgba(124, 114, 248, 0.22);
+  border-color: var(--purple, #7c72f8);
+}
+
+[data-theme="dark"] .rule-number-icon,
+.dark .rule-number-icon {
+  background: rgba(124, 114, 248, 0.2);
+  color: var(--purple, #7c72f8);
+}
+
+[data-theme="dark"] .ai-speech-bubble,
+.dark .ai-speech-bubble,
+[data-theme="dark"] .user-transcript-box,
+.dark .user-transcript-box {
+  background: #18233e;
+  border-color: #2a385c;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .interview-studio-card,
+.dark .interview-studio-card {
+  background: #111728;
+  border-color: #222d4a;
+}
+
+[data-theme="dark"] .media-btn,
+.dark .media-btn {
+  background: #1c2744;
+  border-color: #2d3c64;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .studio-controls-bar,
+.dark .studio-controls-bar {
+  background: #141c32;
+  border-color: #232f4e;
+}
+
+[data-theme="dark"] .violation-banner,
+.dark .violation-banner {
+  background: rgba(220, 38, 38, 0.15);
+  border-color: rgba(220, 38, 38, 0.35);
+  color: #fca5a5;
+}
+
+[data-theme="dark"] .overall-score-pill,
+.dark .overall-score-pill {
+  background: #18233e;
+  border-color: #29385d;
+}
+

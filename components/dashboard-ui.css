@@ -1,49 +1,399 @@
-.course-ui-card{min-width:0;padding:18px 19px;transition:border-color .16s ease,box-shadow .16s ease}
-.course-ui-card.is-linked:hover{border-color:#c9c5ff;box-shadow:0 8px 24px rgba(44,43,107,.08)}
-.course-ui-link{display:block;border-radius:9px}
-.course-ui-link:focus-visible,.assessment-ui-link:focus-visible{outline:3px solid #a9a4ff;outline-offset:5px}
-.course-ui-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.course-ui-card h3{margin:15px 0 5px;font-size:12px;line-height:1.45}
-.course-ui-category{min-height:1.4em;margin:0 0 15px;color:#969eb0;font-size:10px;line-height:1.5}
-.course-ui-progress-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:7px;color:#79829a;font-size:10px}
-.course-ui-progress{height:6px;overflow:hidden;border-radius:9px;background:#ececf5}
-.course-ui-progress span{display:block;height:100%;border-radius:inherit;background:var(--purple);transition:width .25s ease}
-.course-ui-action,.assessment-ui-action{display:inline-flex;align-items:center;gap:5px;margin-top:14px;color:var(--purple);font-size:11px;font-weight:700}
-.assessment-ui-card{display:flex;align-items:center;flex-wrap:wrap;gap:11px;padding:14px 0;border-top:1px solid #f0f1f6}
-.assessment-ui-card:first-child{border-top:0}
-.assessment-ui-link{display:flex;align-items:center;flex:1;flex-wrap:wrap;gap:11px;min-width:0;border-radius:8px}
-.assessment-ui-icon{display:grid;width:34px;height:34px;flex:0 0 34px;place-items:center;border-radius:10px;background:#eaf3ff;color:#4384d3}
-.assessment-ui-body{flex:1;min-width:0}
-.assessment-ui-body strong{display:block;overflow:hidden;font-size:11px;text-overflow:ellipsis;white-space:nowrap}
-.assessment-ui-body small{display:block;margin-top:5px;color:#969eb1;font-size:10px}
-.assessment-ui-action{margin:0 0 0 auto}
-.skill-ui-row{display:grid;grid-template-columns:minmax(85px,105px) minmax(0,1fr) 30px;align-items:center;gap:12px}
-.skill-ui-name{color:#59627d;font-size:11px;line-height:1.4}
-.skill-ui-track{height:7px;overflow:hidden;border-radius:8px;background:#f0f1f6}
-.skill-ui-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7369ed,#9991ff);transition:width .25s ease}
-.skill-ui-score{text-align:right;color:#7b849a;font-size:10px;font-weight:700}
-.readiness-ui{display:flex;flex:1;align-items:center;gap:24px;min-width:0}
-.readiness-ui-ring{position:relative;display:grid;width:112px;height:112px;flex:0 0 112px;place-items:center;border-radius:50%;background:conic-gradient(var(--purple) var(--readiness-pct),#eeeff8 0)}
-.readiness-ui-ring:before{position:absolute;inset:9px;border-radius:50%;background:#fff;content:""}
-.readiness-ui-ring>span{position:relative;text-align:center}
-.readiness-ui-ring strong{display:block;font-size:26px;letter-spacing:-1px}
-.readiness-ui-ring small{color:#939bb0;font-size:9px}
-.readiness-ui-copy{flex:1;min-width:0}
-.readiness-ui-copy h3{margin:0 0 6px;font-size:13px}
-.readiness-ui-copy p{margin:0 0 12px;color:#818aa2;font-size:11px;line-height:1.6}
-.dashboard-empty-state,.dashboard-loading-state,.dashboard-error-state{padding:18px;border:1px dashed #e3e5ef;border-radius:11px;background:#fbfbfe}
-.dashboard-empty-state strong,.dashboard-error-state strong{display:block;color:var(--ink);font-size:12px}
-.dashboard-empty-state p,.dashboard-error-state p{margin:6px 0 0;color:var(--muted);font-size:11px;line-height:1.6}
-.dashboard-empty-state .text-link{margin-top:12px}
-.courses-grid>.dashboard-empty-state{grid-column:1/-1}
-.dashboard-loading-state{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}
-.dashboard-loading-spinner{width:17px;height:17px;border:2px solid #e5e3ff;border-top-color:var(--purple);border-radius:50%;animation:dashboard-spin .75s linear infinite}
-.dashboard-error-state{border-color:#f0d5d4;background:#fff9f8}
-.dashboard-error-state strong{color:#9e3737}
-.dashboard-retry-button{margin-top:12px;padding:8px 11px;border:1px solid #d6d2ff;border-radius:8px;background:#fff;color:var(--purple);font:inherit;font-size:11px;font-weight:700;cursor:pointer}
-.dashboard-retry-button:hover{background:#f5f4ff}
-.dashboard-retry-button:focus-visible{outline:3px solid #a9a4ff;outline-offset:3px}
-@keyframes dashboard-spin{to{transform:rotate(360deg)}}
-@media(max-width:900px){.readiness-ui{flex-wrap:wrap;gap:18px}.readiness-ui-copy{flex-basis:calc(100% - 130px)}}
-@media(max-width:600px){.course-ui-card{padding:16px}.assessment-ui-card{align-items:flex-start}.assessment-ui-link{flex-basis:100%}.assessment-ui-card>.tag{margin-left:45px}.assessment-ui-action{margin-left:45px}.skill-ui-row{grid-template-columns:minmax(78px,95px) minmax(0,1fr) 26px;gap:8px}.readiness-ui{gap:14px}.readiness-ui-ring{width:92px;height:92px;flex-basis:92px}.readiness-ui-ring:before{inset:7px}.readiness-ui-ring strong{font-size:23px}.readiness-ui-copy{flex-basis:calc(100% - 108px)}}
-@media(prefers-reduced-motion:reduce){.course-ui-card,.course-ui-progress span,.skill-ui-track span{transition:none}.dashboard-loading-spinner{animation:none}}
+.course-ui-card {
+  min-width: 0;
+  padding: 18px 19px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 15px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.course-ui-card.is-linked:hover {
+  border-color: var(--purple);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.course-ui-link {
+  display: block;
+  border-radius: 9px;
+}
+
+.course-ui-link:focus-visible,
+.assessment-ui-link:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 4px;
+}
+
+.course-ui-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.course-ui-card h3 {
+  margin: 15px 0 5px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.course-ui-category {
+  min-height: 1.4em;
+  margin: 0 0 15px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.course-ui-progress-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.course-ui-progress {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 9px;
+  background: var(--line);
+}
+
+.course-ui-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--purple);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.course-ui-action,
+.assessment-ui-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 14px;
+  color: var(--purple);
+  font-size: 11px;
+  font-weight: 700;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.course-ui-action:hover,
+.assessment-ui-action:hover {
+  color: var(--purple-hover);
+  transform: translateX(3px);
+}
+
+.assessment-ui-card {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 11px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+  transition: background-color 0.15s ease;
+}
+
+.assessment-ui-card:first-child {
+  border-top: 0;
+}
+
+.assessment-ui-link {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 11px;
+  min-width: 0;
+  border-radius: 8px;
+}
+
+.assessment-ui-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--accent-subtle);
+  color: var(--purple);
+}
+
+.assessment-ui-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.assessment-ui-body strong {
+  display: block;
+  overflow: hidden;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.assessment-ui-body small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.assessment-ui-action {
+  margin: 0 0 0 auto;
+}
+
+.skill-ui-row {
+  display: grid;
+  grid-template-columns: minmax(85px, 105px) minmax(0, 1fr) 30px;
+  align-items: center;
+  gap: 12px;
+}
+
+.skill-ui-name {
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.skill-ui-track {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--line);
+}
+
+.skill-ui-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--purple), #a098ff);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.skill-ui-score {
+  text-align: right;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.readiness-ui {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 24px;
+  min-width: 0;
+}
+
+.readiness-ui-ring {
+  position: relative;
+  display: grid;
+  width: 112px;
+  height: 112px;
+  flex: 0 0 112px;
+  place-items: center;
+  border-radius: 50%;
+  background: conic-gradient(var(--purple) var(--readiness-pct), var(--line) 0);
+  transition: transform 0.3s ease;
+}
+
+.readiness-ui-ring:hover {
+  transform: scale(1.05);
+}
+
+.readiness-ui-ring:before {
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  background: var(--card-bg);
+  content: "";
+}
+
+.readiness-ui-ring > span {
+  position: relative;
+  text-align: center;
+}
+
+.readiness-ui-ring strong {
+  display: block;
+  font-size: 26px;
+  letter-spacing: -1px;
+  color: var(--ink);
+}
+
+.readiness-ui-ring small {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.readiness-ui-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.readiness-ui-copy h3 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.readiness-ui-copy p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.dashboard-empty-state,
+.dashboard-loading-state,
+.dashboard-error-state {
+  padding: 18px;
+  border: 1px dashed var(--line);
+  border-radius: 11px;
+  background: var(--accent-subtle);
+}
+
+.dashboard-empty-state strong,
+.dashboard-error-state strong {
+  display: block;
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.dashboard-empty-state p,
+.dashboard-error-state p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.dashboard-empty-state .text-link {
+  margin-top: 12px;
+}
+
+.courses-grid > .dashboard-empty-state {
+  grid-column: 1 / -1;
+}
+
+.dashboard-loading-state {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.dashboard-loading-spinner {
+  width: 17px;
+  height: 17px;
+  border: 2px solid var(--line);
+  border-top-color: var(--purple);
+  border-radius: 50%;
+  animation: dashboard-spin 0.75s linear infinite;
+}
+
+.dashboard-error-state {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.dashboard-error-state strong {
+  color: #ef4444;
+}
+
+.dashboard-retry-button {
+  margin-top: 12px;
+  padding: 8px 11px;
+  border: 1px solid var(--purple);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--purple);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dashboard-retry-button:hover {
+  background: var(--purple);
+  color: #fff;
+}
+
+.dashboard-retry-button:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 3px;
+}
+
+@keyframes dashboard-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 900px) {
+  .readiness-ui {
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+  .readiness-ui-copy {
+    flex-basis: calc(100% - 130px);
+  }
+}
+
+@media (max-width: 600px) {
+  .course-ui-card {
+    padding: 16px;
+  }
+  .assessment-ui-card {
+    align-items: flex-start;
+  }
+  .assessment-ui-link {
+    flex-basis: 100%;
+  }
+  .assessment-ui-card > .tag {
+    margin-left: 45px;
+  }
+  .assessment-ui-action {
+    margin-left: 45px;
+  }
+  .skill-ui-row {
+    grid-template-columns: minmax(78px, 95px) minmax(0, 1fr) 26px;
+    gap: 8px;
+  }
+  .readiness-ui {
+    gap: 14px;
+  }
+  .readiness-ui-ring {
+    width: 92px;
+    height: 92px;
+    flex-basis: 92px;
+  }
+  .readiness-ui-ring:before {
+    inset: 7px;
+  }
+  .readiness-ui-ring strong {
+    font-size: 23px;
+  }
+  .readiness-ui-copy {
+    flex-basis: calc(100% - 108px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .course-ui-card,
+  .course-ui-progress span,
+  .skill-ui-track span {
+    transition: none;
+  }
+  .dashboard-loading-spinner {
+    animation: none;
+  }
+}
