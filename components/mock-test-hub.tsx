@@ -611,7 +611,7 @@ export function MockTestRunner({ mockId }: { mockId: string }) {
         </div>
       ) : (
         /* LIVE EXAMINATION SCREEN */
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 20, alignItems: "start" }}>
+        <div className="mock-test-runner-layout">
           {/* Main Question Display */}
           <div>
             <div className="card question-card" style={{ padding: "20px 24px", minHeight: 420 }}>

@@ -1349,7 +1349,7 @@ ${rep.growthInsight}
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
                   gap: 12,
                   marginBottom: 20,
                   textAlign: "center",

@@ -9,7 +9,7 @@
   --card-bg: #ffffff;
   --card-border: #e9ecf4;
   --sidebar-bg: #ffffff;
-  --topbar-bg: rgba(255, 255, 255, 0.86);
+  --topbar-bg: rgba(255, 255, 255, 0.88);
   --purple: #6258e8;
   --purple-hover: #5148d0;
   --purple-light: #f0efff;
@@ -35,7 +35,7 @@
   --card-bg: #131b2e;
   --card-border: #222d4a;
   --sidebar-bg: #0f1627;
-  --topbar-bg: rgba(15, 22, 39, 0.88);
+  --topbar-bg: rgba(15, 22, 39, 0.9);
   --purple: #7c72f8;
   --purple-hover: #9087ff;
   --purple-light: rgba(124, 114, 248, 0.15);
@@ -70,6 +70,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.25s ease, color 0.25s ease;
+  overflow-x: hidden;
 }
 
 a {
@@ -154,11 +155,6 @@ button:focus-visible, a:focus-visible {
   50% { transform: translateY(-5px); }
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -178,10 +174,6 @@ button:focus-visible, a:focus-visible {
 .animate-popover {
   animation: popoverIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
   transform-origin: top right;
-}
-
-.animate-float {
-  animation: float 4s ease-in-out infinite;
 }
 
 .spin {
@@ -210,6 +202,7 @@ button:focus-visible, a:focus-visible {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-height: 34px;
 }
 
 .theme-toggle-btn:hover {
@@ -233,7 +226,7 @@ button:focus-visible, a:focus-visible {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  z-index: 30;
+  z-index: 50;
   min-width: 150px;
   background: var(--popover-bg);
   border: 1px solid var(--line);
@@ -285,10 +278,11 @@ button:focus-visible, a:focus-visible {
 }
 
 /* =========================================
-   SHELL & NAVIGATION
+   SHELL, DESKTOP SIDEBAR & MOBILE DRAWER
    ========================================= */
 .shell {
   min-height: 100vh;
+  display: flex;
 }
 
 .sidebar {
@@ -297,18 +291,19 @@ button:focus-visible, a:focus-visible {
   width: 248px;
   background: var(--sidebar-bg);
   border-right: 1px solid var(--line);
-  padding: 26px 16px;
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
-  z-index: 5;
-  transition: background-color 0.25s ease, border-color 0.25s ease;
+  z-index: 25;
+  transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+  overflow-y: auto;
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 11px;
-  padding: 0 10px 35px;
+  padding: 0 10px 30px;
   font-weight: 750;
   font-size: 18px;
   letter-spacing: -0.4px;
@@ -325,6 +320,7 @@ button:focus-visible, a:focus-visible {
   color: #fff;
   box-shadow: 0 4px 12px rgba(98, 88, 232, 0.3);
   transition: transform 0.2s ease;
+  flex-shrink: 0;
 }
 
 .brand:hover .brand-mark {
@@ -381,6 +377,7 @@ button:focus-visible, a:focus-visible {
 .nav-icon {
   width: 18px;
   height: 18px;
+  flex-shrink: 0;
   transition: transform 0.2s ease;
 }
 
@@ -390,6 +387,7 @@ button:focus-visible, a:focus-visible {
 
 .sidebar-bottom {
   margin-top: auto;
+  padding-top: 14px;
 }
 
 .help-card {
@@ -446,6 +444,7 @@ button:focus-visible, a:focus-visible {
   background: var(--accent-subtle);
   color: var(--purple);
   font-weight: 750;
+  flex-shrink: 0;
   transition: transform 0.2s ease;
 }
 
@@ -466,16 +465,94 @@ button:focus-visible, a:focus-visible {
 }
 
 /* =========================================
-   TOPBAR & LAYOUT
+   MOBILE DRAWER & BACKDROP
+   ========================================= */
+.mobile-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 15, 27, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 45;
+  animation: fadeIn 0.2s ease both;
+}
+
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(320px, 85vw);
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--line);
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+}
+
+.mobile-drawer.open {
+  transform: translateX(0);
+}
+
+.mobile-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 16px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.mobile-drawer-header .brand {
+  padding: 0;
+}
+
+.mobile-drawer-close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--card-bg);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-drawer-close:hover {
+  background: var(--accent-subtle);
+  color: var(--purple);
+}
+
+.mobile-drawer-body {
+  padding: 16px;
+  flex: 1;
+}
+
+.mobile-drawer-footer {
+  padding: 16px;
+  border-top: 1px solid var(--line);
+}
+
+/* =========================================
+   TOPBAR & MAIN LAYOUT
    ========================================= */
 .main {
+  flex: 1;
   margin-left: 248px;
   min-height: 100vh;
-  transition: margin 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  transition: margin-left 0.25s ease;
 }
 
 .topbar {
-  height: 72px;
+  height: 68px;
   background: var(--topbar-bg);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -483,11 +560,37 @@ button:focus-visible, a:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 42px;
+  padding: 0 36px;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 30;
   transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.mobile-menu-trigger {
+  display: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--card-bg);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+
+.mobile-menu-trigger:hover {
+  background: var(--accent-subtle);
+  color: var(--purple);
 }
 
 .crumb {
@@ -495,6 +598,9 @@ button:focus-visible, a:focus-visible {
   font-size: 12px;
   display: flex;
   align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .crumb b {
@@ -502,10 +608,16 @@ button:focus-visible, a:focus-visible {
   font-weight: 600;
 }
 
+.crumb-title {
+  color: var(--ink);
+  font-weight: 600;
+}
+
 .top-right {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .icon-button {
@@ -513,7 +625,8 @@ button:focus-visible, a:focus-visible {
   background: var(--card-bg);
   color: var(--muted);
   position: relative;
-  padding: 8px;
+  width: 34px;
+  height: 34px;
   border-radius: 9px;
   cursor: pointer;
   display: grid;
@@ -539,8 +652,8 @@ button:focus-visible, a:focus-visible {
 }
 
 .top-user {
-  height: 36px;
-  width: 36px;
+  height: 34px;
+  width: 34px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -559,8 +672,62 @@ button:focus-visible, a:focus-visible {
 
 .content {
   max-width: 1440px;
-  margin: auto;
-  padding: 34px 42px 52px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 36px 48px;
+  flex: 1;
+}
+
+.page-content-wrapper {
+  width: 100%;
+}
+
+/* =========================================
+   MOBILE BOTTOM FIXED BAR
+   ========================================= */
+.mobile-bottom-bar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: var(--topbar-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--line);
+  z-index: 40;
+  align-items: center;
+  justify-content: space-around;
+  padding: 4px 8px max(4px, env(safe-area-inset-bottom));
+}
+
+.bottom-tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: color 0.15s ease, transform 0.15s ease;
+  min-width: 54px;
+}
+
+.bottom-tab-item.active {
+  color: var(--purple);
+  font-weight: 700;
+}
+
+.bottom-tab-icon {
+  transition: transform 0.15s ease;
+}
+
+.bottom-tab-item.active .bottom-tab-icon {
+  transform: scale(1.1);
 }
 
 /* =========================================
@@ -570,8 +737,10 @@ button:focus-visible, a:focus-visible {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 26px;
-  animation: fadeInDown 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+  animation: fadeInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .eyebrow {
@@ -583,29 +752,31 @@ button:focus-visible, a:focus-visible {
 }
 
 .welcome h1 {
-  font-size: 28px;
-  letter-spacing: -1px;
-  margin: 8px 0 6px;
+  font-size: clamp(22px, 3.5vw, 28px);
+  letter-spacing: -0.8px;
+  margin: 6px 0 4px;
   color: var(--ink);
 }
 
 .welcome p {
   margin: 0;
   color: var(--muted);
+  font-size: clamp(12px, 1.5vw, 13px);
+  line-height: 1.5;
 }
 
 .date-pill {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   border: 1px solid var(--line);
   background: var(--card-bg);
   border-radius: 9px;
-  padding: 10px 13px;
+  padding: 8px 12px;
   color: var(--muted);
   font-size: 12px;
   box-shadow: var(--shadow-sm);
-  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .grid {
@@ -627,14 +798,14 @@ button:focus-visible, a:focus-visible {
 }
 
 .card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
   border-color: rgba(98, 88, 232, 0.3);
 }
 
 .stat-card {
-  padding: 19px 20px;
-  min-height: 125px;
+  padding: 18px 20px;
+  min-height: 120px;
 }
 
 .stat-head {
@@ -653,6 +824,7 @@ button:focus-visible, a:focus-visible {
   color: var(--purple);
   display: grid;
   place-items: center;
+  flex-shrink: 0;
   transition: transform 0.2s ease;
 }
 
@@ -664,11 +836,11 @@ button:focus-visible, a:focus-visible {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: 12px;
 }
 
 .stat-value strong {
-  font-size: 26px;
+  font-size: clamp(22px, 2.5vw, 26px);
   letter-spacing: -1px;
   color: var(--ink);
 }
@@ -682,7 +854,7 @@ button:focus-visible, a:focus-visible {
 .stat-foot {
   font-size: 10px;
   color: var(--muted);
-  margin-top: 5px;
+  margin-top: 4px;
 }
 
 .main-grid {
@@ -692,7 +864,7 @@ button:focus-visible, a:focus-visible {
 }
 
 .section-card {
-  padding: 21px 22px;
+  padding: 20px 22px;
 }
 
 .card-title-row {
@@ -719,14 +891,14 @@ button:focus-visible, a:focus-visible {
   display: flex;
   align-items: center;
   gap: 24px;
-  margin-top: 23px;
+  margin-top: 20px;
 }
 
 .ring {
   --pct: 72%;
-  width: 112px;
-  height: 112px;
-  flex: 0 0 112px;
+  width: 110px;
+  height: 110px;
+  flex: 0 0 110px;
   border-radius: 50%;
   background: conic-gradient(var(--purple) var(--pct), var(--line) 0);
   display: grid;
@@ -753,7 +925,7 @@ button:focus-visible, a:focus-visible {
 }
 
 .ring-center strong {
-  font-size: 26px;
+  font-size: 24px;
   display: block;
   letter-spacing: -1px;
   color: var(--ink);
@@ -766,6 +938,7 @@ button:focus-visible, a:focus-visible {
 
 .readiness-copy {
   flex: 1;
+  min-width: 0;
 }
 
 .readiness-copy h3 {
@@ -840,12 +1013,12 @@ button:focus-visible, a:focus-visible {
 .skills {
   display: grid;
   gap: 16px;
-  margin-top: 22px;
+  margin-top: 20px;
 }
 
 .skill-row {
   display: grid;
-  grid-template-columns: 105px 1fr 30px;
+  grid-template-columns: minmax(80px, 105px) minmax(0, 1fr) 30px;
   align-items: center;
   gap: 12px;
 }
@@ -853,6 +1026,9 @@ button:focus-visible, a:focus-visible {
 .skill-name {
   font-size: 11px;
   color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .skill-track {
@@ -888,7 +1064,6 @@ button:focus-visible, a:focus-visible {
   gap: 11px;
   padding: 14px 0;
   border-top: 1px solid var(--line);
-  transition: background 0.15s ease;
 }
 
 .assessment:first-child {
@@ -1030,6 +1205,7 @@ button:focus-visible, a:focus-visible {
   border-radius: 50%;
   background: var(--purple);
   box-shadow: 0 0 0 4px var(--accent-subtle);
+  flex-shrink: 0;
 }
 
 .activity-item strong {
@@ -1118,7 +1294,8 @@ button:focus-visible, a:focus-visible {
 .soon-panel {
   max-width: 510px;
   text-align: center;
-  padding: 42px;
+  padding: 42px 28px;
+  width: 100%;
 }
 
 .soon-panel .stat-icon {
@@ -1195,7 +1372,7 @@ button:focus-visible, a:focus-visible {
 
 .auth-heading {
   text-align: center;
-  margin-top: 28px;
+  margin-top: 24px;
 }
 
 .auth-icon {
@@ -1231,7 +1408,7 @@ button:focus-visible, a:focus-visible {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4px;
-  margin: 25px 0 20px;
+  margin: 24px 0 20px;
   padding: 4px;
   background: var(--line);
   border-radius: 10px;
@@ -1386,7 +1563,13 @@ button:focus-visible, a:focus-visible {
   gap: 8px;
   overflow-x: auto;
   margin: 0 0 20px;
+  padding-bottom: 4px;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.learning-filters::-webkit-scrollbar {
+  display: none;
 }
 
 .learning-filters button {
@@ -1401,6 +1584,7 @@ button:focus-visible, a:focus-visible {
   white-space: nowrap;
   cursor: pointer;
   transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
 .learning-filters button:hover {
@@ -1545,7 +1729,7 @@ button:focus-visible, a:focus-visible {
 }
 
 .learning-empty {
-  padding: 44px;
+  padding: 44px 20px;
   text-align: center;
   color: var(--muted);
 }
@@ -1714,6 +1898,7 @@ button:focus-visible, a:focus-visible {
   font-size: 11px;
   cursor: pointer;
   transition: all 0.15s ease;
+  min-height: 44px;
 }
 
 .answer-options label:hover {
@@ -1742,6 +1927,7 @@ button:focus-visible, a:focus-visible {
   color: var(--muted);
   font-size: 9px;
   font-weight: 700;
+  flex-shrink: 0;
 }
 
 .answer-options label.chosen .option-letter {
@@ -1763,7 +1949,7 @@ button:focus-visible, a:focus-visible {
 
 .result-summary {
   position: sticky;
-  top: 92px;
+  top: 88px;
   padding: 27px;
   text-align: center;
 }
@@ -1910,6 +2096,11 @@ button:focus-visible, a:focus-visible {
   overflow-x: auto;
   margin: 21px 0 18px;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.question-picker::-webkit-scrollbar {
+  display: none;
 }
 
 .question-picker button {
@@ -1923,6 +2114,7 @@ button:focus-visible, a:focus-visible {
   white-space: nowrap;
   cursor: pointer;
   transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
 .question-picker button:hover {
@@ -2144,8 +2336,8 @@ button:focus-visible, a:focus-visible {
 
 .insight-empty {
   max-width: 630px;
-  margin: 50px auto;
-  padding: 38px;
+  margin: 40px auto;
+  padding: 32px 20px;
   text-align: center;
 }
 
@@ -2391,6 +2583,7 @@ button:focus-visible, a:focus-visible {
   justify-content: space-between;
   gap: 10px;
   margin-top: 25px;
+  flex-wrap: wrap;
 }
 
 .course-enroll {
@@ -2411,226 +2604,36 @@ button:focus-visible, a:focus-visible {
 }
 
 /* =========================================
-   RESPONSIVE DESIGN
+   RESPONSIVE BREAKPOINTS (DESKTOP, TABLET, MOBILE)
    ========================================= */
-@media (max-width: 1100px) {
+
+/* Tablets & Smaller Desktops (<= 1024px) */
+@media (max-width: 1024px) {
   .sidebar {
-    width: 220px;
+    display: none;
   }
   .main {
-    margin-left: 220px;
+    margin-left: 0;
   }
-  .content {
-    padding: 28px;
+  .mobile-menu-trigger {
+    display: grid;
   }
   .topbar {
-    padding: 0 28px;
+    padding: 0 20px;
+    height: 62px;
+  }
+  .content {
+    padding: 24px 20px 48px;
   }
   .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .main-grid {
     grid-template-columns: 1fr;
   }
   .courses-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-}
-
-.mobile-nav {
-  display: none;
-}
-
-@media (max-width: 700px) {
-  .sidebar {
-    display: none;
-  }
-  .main {
-    margin: 0;
-  }
-  .topbar {
-    height: 60px;
-    padding: 0 17px;
-  }
-  .crumb {
-    display: flex;
-    align-items: center;
-  }
-  .mobile-nav {
-    display: flex;
-    gap: 7px;
-    overflow-x: auto;
-    padding: 9px 14px;
-    background: var(--card-bg);
-    border-bottom: 1px solid var(--line);
-    scrollbar-width: none;
-  }
-  .mobile-nav::-webkit-scrollbar {
-    display: none;
-  }
-  .mobile-nav a {
-    white-space: nowrap;
-    border-radius: 8px;
-    padding: 8px 10px;
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 600;
-  }
-  .mobile-nav a.selected {
-    background: var(--accent-subtle);
-    color: var(--purple);
-  }
-  .content {
-    padding: 24px 16px 40px;
-  }
-  .welcome {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 15px;
-  }
-  .welcome h1 {
-    font-size: 24px;
-  }
-  .date-pill {
-    font-size: 11px;
-  }
-  .stats-grid {
-    gap: 10px;
-  }
-  .stat-card {
-    padding: 15px;
-    min-height: 112px;
-  }
-  .stat-value strong {
-    font-size: 23px;
-  }
-  .main-grid, .courses-grid, .activity {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  .section-card {
-    padding: 18px;
-  }
-  .readiness {
-    gap: 14px;
-    flex-wrap: wrap;
-  }
-  .ring {
-    width: 94px;
-    height: 94px;
-    flex-basis: 94px;
-  }
-  .goal-bar {
-    flex: 1;
-  }
-  .skill-row {
-    grid-template-columns: 88px 1fr 27px;
-    gap: 8px;
-  }
-  .top-right {
-    gap: 8px;
-  }
-  .topbar .crumb {
-    font-size: 11px;
-  }
-  .auth-page {
-    padding: 20px 14px;
-  }
-  .auth-card {
-    padding: 29px 22px 24px;
-  }
-  .auth-heading h1 {
-    font-size: 22px;
-  }
-  .learning-grid {
-    grid-template-columns: 1fr;
-  }
-  .assessment-card {
-    align-items: flex-start;
-    flex-wrap: wrap;
-    padding: 16px;
-  }
-  .assessment-card-main {
-    flex-basis: calc(100% - 62px);
-  }
-  .assessment-card > .learning-button {
-    margin-left: 62px;
-  }
-  .result-row {
-    gap: 9px;
-  }
-  .quiz-page .welcome {
-    align-items: flex-start;
-  }
-  .question-card {
-    padding: 17px;
-  }
-  .quiz-progress-label {
-    font-size: 10px;
-  }
-  .result-summary {
-    padding: 24px;
-  }
-  .coach-workspace {
-    padding: 18px;
-  }
-  .coach-side {
-    grid-template-columns: 1fr;
-  }
-  .feedback-panel {
-    padding: 18px;
-  }
-  .feedback-columns {
-    grid-template-columns: 1fr;
-  }
-  .readiness-overview {
-    align-items: flex-start;
-    gap: 14px;
-    padding: 17px;
-  }
-  .readiness-number {
-    width: 70px;
-    height: 70px;
-    flex-basis: 70px;
-  }
-  .readiness-number strong {
-    font-size: 19px;
-  }
-  .insights-columns {
-    grid-template-columns: 1fr;
-  }
-  .insight-empty {
-    margin: 20px 0;
-    padding: 27px 18px;
-  }
-  .insight-empty > div {
-    flex-direction: column;
-    gap: 12px;
-  }
-  .insight-stat {
-    padding: 14px;
-  }
-  .insight-stat strong {
-    font-size: 22px;
-  }
-  .course-room-layout {
-    grid-template-columns: 1fr;
-  }
-  .lesson-nav {
-    grid-template-columns: 1fr;
-  }
-  .lesson-content {
-    padding: 20px;
-  }
-  .lesson-controls {
-    flex-direction: column;
-  }
-  .lesson-controls .learning-button {
-    width: 100%;
-  }
-}
-
-@media (max-width: 1000px) {
   .learning-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2644,10 +2647,190 @@ button:focus-visible, a:focus-visible {
     grid-template-columns: 1fr;
   }
   .coach-side {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
   .insight-stats {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile Devices (<= 768px) */
+@media (max-width: 768px) {
+  .topbar {
+    height: 58px;
+    padding: 0 14px;
+  }
+  .crumb-desktop {
+    display: none;
+  }
+  .crumb-title {
+    font-size: 13px;
+  }
+  .top-right {
+    gap: 8px;
+  }
+  .theme-current-label {
+    display: none;
+  }
+  .mobile-nav {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 8px 12px;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--line);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .mobile-nav::-webkit-scrollbar {
+    display: none;
+  }
+  .mobile-nav a {
+    white-space: nowrap;
+    border-radius: 8px;
+    padding: 7px 10px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .mobile-nav a.selected {
+    background: var(--accent-subtle);
+    color: var(--purple);
+  }
+  .content {
+    padding: 18px 14px 84px;
+  }
+  .mobile-bottom-bar {
+    display: flex;
+  }
+  .welcome {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .welcome h1 {
+    font-size: 22px;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .stat-card {
+    padding: 14px 15px;
+    min-height: 105px;
+  }
+  .stat-value strong {
+    font-size: 22px;
+  }
+  .main-grid, .courses-grid, .activity, .learning-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .section-card {
+    padding: 16px;
+  }
+  .readiness {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .ring {
+    width: 96px;
+    height: 96px;
+    flex-basis: 96px;
+  }
+  .goal-bar {
+    width: 100%;
+  }
+  .assessment-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+    gap: 12px;
+  }
+  .assessment-card > .learning-button {
+    width: 100%;
+  }
+  .coach-workspace {
+    padding: 16px;
+  }
+  .coach-side {
+    grid-template-columns: 1fr;
+  }
+  .feedback-panel {
+    padding: 16px;
+  }
+  .feedback-columns {
+    grid-template-columns: 1fr;
+  }
+  .readiness-overview {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+  }
+  .readiness-number {
+    width: 72px;
+    height: 72px;
+    flex-basis: 72px;
+  }
+  .insights-columns {
+    grid-template-columns: 1fr;
+  }
+  .course-room-layout {
+    grid-template-columns: 1fr;
+  }
+  .lesson-content {
+    padding: 18px 16px;
+  }
+  .lesson-controls {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .lesson-controls .learning-button {
+    width: 100%;
+  }
+  .auth-page {
+    padding: 16px 12px;
+  }
+  .auth-card {
+    padding: 24px 18px 20px;
+  }
+  .auth-heading h1 {
+    font-size: 20px;
+  }
+}
+
+/* Small Phones (<= 480px) */
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .insight-stats {
+    grid-template-columns: 1fr;
+  }
+  .skill-row {
+    grid-template-columns: 85px 1fr 28px;
+    gap: 8px;
+  }
+  .result-row {
+    gap: 10px;
+    font-size: 11px;
+  }
+  .question-card {
+    padding: 16px 14px;
+  }
+  .question-card legend {
+    font-size: 12px;
+  }
+  .answer-options label {
+    padding: 10px;
+    font-size: 11px;
+  }
+  .quiz-submit {
+    width: 100%;
   }
 }
 
