@@ -3133,3 +3133,91 @@ button:focus-visible, a:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+/* =========================================
+   AI RESUME BUILDER STYLES
+   ========================================= */
+.resume-studio-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .resume-studio-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.resume-paper-shadow {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.dark .resume-paper-shadow {
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Print Rules for ATS Resume PDF Generation */
+@page {
+  size: letter portrait;
+  margin: 0;
+}
+
+@media print {
+  html, body {
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-size: 11pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide app chrome, sidebar, nav, controls */
+  aside,
+  nav,
+  header,
+  .sidebar,
+  .topbar,
+  .mobile-bottom-tabs,
+  .resume-header-bar,
+  .resume-form-pane,
+  .resume-preview-controls,
+  .resume-nav-tabs,
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Reset layout containers */
+  .app-shell,
+  .page-container,
+  main,
+  .resume-studio-grid,
+  .resume-preview-pane {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  #printable-resume {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 24px 32px !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+}
+

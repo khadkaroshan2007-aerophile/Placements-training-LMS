@@ -12,6 +12,7 @@ import {
   CircleHelp,
   ClipboardCheck,
   Code2,
+  FileText,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -36,6 +37,7 @@ const nav = [
 
 const workspace = [
   { label: "Placement office", href: "/placement", icon: BriefcaseBusiness },
+  { label: "Resume builder", href: "/resume-builder", icon: FileText },
 ];
 
 export function AppShell({
