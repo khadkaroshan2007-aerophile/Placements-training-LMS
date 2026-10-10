@@ -62,8 +62,14 @@ export interface ResumeData {
   certifications: CertificationItem[];
 }
 
-export type ResumeTemplateId = "modern" | "classic" | "compact";
-export type ResumeAccentColor = "purple" | "blue" | "emerald" | "slate";
+export type ResumeTemplateId =
+  | "creative-duo"
+  | "creative-banner"
+  | "modern"
+  | "classic"
+  | "compact";
+
+export type ResumeAccentColor = "purple" | "blue" | "emerald" | "rose" | "amber" | "slate";
 
 export const sampleResumeData: ResumeData = {
   personal: {

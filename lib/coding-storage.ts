@@ -6,7 +6,7 @@ export interface CodeSubmission {
   problemId: string;
   language: SupportedLanguage;
   code: string;
-  status: "Accepted" | "Wrong Answer" | "Runtime Error" | "Time Limit Exceeded";
+  status: "Accepted" | "Wrong Answer" | "Runtime Error" | "Time Limit Exceeded" | "Compile Error";
   passedTests: number;
   totalTests: number;
   runtimeMs: number;

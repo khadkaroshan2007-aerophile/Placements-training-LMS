@@ -4,7 +4,9 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   AlertCircle,
+  AlertTriangle,
   ArrowLeft,
+  Bug,
   CheckCircle2,
   ChevronRight,
   Clock,
@@ -14,6 +16,7 @@ import {
   FileCode2,
   HelpCircle,
   History,
+  Info,
   Layers,
   Lightbulb,
   Maximize2,
@@ -40,6 +43,25 @@ import {
   type CodeSubmission,
 } from "@/lib/coding-storage";
 
+export interface DiagnosticInfo {
+  errorType:
+    | "SyntaxError"
+    | "IndentationError"
+    | "NameError"
+    | "TypeError"
+    | "IndexError"
+    | "CompileError"
+    | "RuntimeError"
+    | "TimeLimitExceeded"
+    | "WrongAnswer";
+  line?: number;
+  column?: number;
+  message: string;
+  snippet?: string;
+  suggestion: string;
+  stackTrace?: string;
+}
+
 interface RunResultItem {
   id: string;
   input: string;
@@ -51,11 +73,12 @@ interface RunResultItem {
 }
 
 interface RunResponse {
-  status: "Accepted" | "Wrong Answer" | "Runtime Error" | "Time Limit Exceeded";
+  status: "Accepted" | "Wrong Answer" | "Runtime Error" | "Time Limit Exceeded" | "Compile Error";
   allPassed: boolean;
   passedTests: number;
   totalTests: number;
   results: RunResultItem[];
+  diagnostic?: DiagnosticInfo | null;
   runtimeMs: number;
   memoryMb: number;
 }
@@ -202,6 +225,7 @@ export function CodeEditorStudio({ problem }: { problem: CodingProblem }) {
 
   const lines = code.split("\n");
   const visibleTestCases = problem.testCases.filter((tc) => !tc.isHidden);
+  const errorLine = runResult?.diagnostic?.line;
 
   const difficultyColor =
     problem.difficulty === "Easy"
@@ -248,26 +272,58 @@ export function CodeEditorStudio({ problem }: { problem: CodingProblem }) {
           </span>
         </div>
 
-        {/* Mobile View Toggle Switch */}
-        <div className="mobile-code-tabs" style={{ display: "none" }}>
-          <button
-            type="button"
-            className={mobileViewTab === "problem" ? "selected" : ""}
-            onClick={() => setMobileViewTab("problem")}
+        {/* Quick Nav problem category & company pills */}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          <span
+            style={{
+              fontSize: 10,
+              color: "var(--purple)",
+              background: "var(--accent-subtle)",
+              border: "1px solid var(--line)",
+              padding: "2px 8px",
+              borderRadius: 12,
+              fontWeight: 600,
+            }}
           >
-            Description
-          </button>
-          <button
-            type="button"
-            className={mobileViewTab === "code" ? "selected" : ""}
-            onClick={() => setMobileViewTab("code")}
-          >
-            Code & Test
-          </button>
+            {problem.category}
+          </span>
+          {problem.companies.slice(0, 3).map((comp) => (
+            <span
+              key={comp}
+              style={{
+                fontSize: 10,
+                color: "var(--muted)",
+                background: "var(--card-bg)",
+                border: "1px solid var(--line)",
+                padding: "2px 8px",
+                borderRadius: 12,
+              }}
+            >
+              {comp}
+            </span>
+          ))}
         </div>
       </div>
 
-      {/* Main Split-Screen IDE Layout */}
+      {/* Mobile Tabs Switcher */}
+      <div className="mobile-code-tabs" style={{ display: "none", marginBottom: 12 }}>
+        <button
+          type="button"
+          className={mobileViewTab === "problem" ? "selected" : ""}
+          onClick={() => setMobileViewTab("problem")}
+        >
+          Problem Description
+        </button>
+        <button
+          type="button"
+          className={mobileViewTab === "code" ? "selected" : ""}
+          onClick={() => setMobileViewTab("code")}
+        >
+          Code Editor ({LANGUAGE_LABELS[language].name})
+        </button>
+      </div>
+
+      {/* Main Studio 2-Column Split Layout */}
       <div className="code-studio-layout">
         {/* LEFT PANE: Problem Description, Hints, Submissions */}
         <section
@@ -275,184 +331,106 @@ export function CodeEditorStudio({ problem }: { problem: CodingProblem }) {
             mobileViewTab === "problem" ? "mobile-show" : ""
           }`}
         >
-          {/* Left Pane Header Tabs */}
-          <div className="code-pane-tabs">
+          {/* Tabs bar */}
+          <div className="code-tab-header">
             <button
               type="button"
               className={activeLeftTab === "description" ? "active" : ""}
               onClick={() => setActiveLeftTab("description")}
             >
-              <FileCode2 size={14} /> Description
+              <FileCode2 size={13} /> Description
             </button>
             <button
               type="button"
               className={activeLeftTab === "hints" ? "active" : ""}
               onClick={() => setActiveLeftTab("hints")}
             >
-              <Lightbulb size={14} /> Hints ({problem.hints.length})
+              <Lightbulb size={13} /> Hints ({problem.hints.length})
             </button>
             <button
               type="button"
               className={activeLeftTab === "submissions" ? "active" : ""}
               onClick={() => setActiveLeftTab("submissions")}
             >
-              <History size={14} /> Submissions ({submissions.length})
+              <History size={13} /> Submissions ({submissions.length})
             </button>
           </div>
 
-          {/* Tab Content: Description */}
+          {/* Description Tab */}
           {activeLeftTab === "description" && (
-            <div className="code-pane-content animate-fade-in">
-              <h1 style={{ fontSize: 20, margin: "0 0 10px", color: "var(--ink)" }}>
+            <div className="code-pane-scroll animate-fade-in">
+              <h2 style={{ fontSize: 18, margin: "0 0 10px", color: "var(--ink)" }}>
                 {problem.title}
-              </h1>
+              </h2>
 
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginBottom: 16,
-                  flexWrap: "wrap",
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: difficultyColor,
-                    background: `${difficultyColor}18`,
-                    padding: "3px 8px",
-                    borderRadius: 4,
-                  }}
-                >
-                  {problem.difficulty}
-                </span>
-                <span className="tag">{problem.category}</span>
-                <span style={{ fontSize: 11, color: "var(--muted)" }}>
-                  Acceptance: {problem.acceptanceRate}
-                </span>
-              </div>
-
-              {/* Description Body */}
               <div
                 style={{
                   fontSize: 13,
-                  lineHeight: 1.7,
+                  lineHeight: 1.65,
                   color: "var(--ink)",
-                  whiteSpace: "pre-line",
-                  marginBottom: 20,
+                  whiteSpace: "pre-wrap",
+                  marginBottom: 16,
                 }}
               >
                 {problem.description}
               </div>
 
               {/* Examples */}
-              <h3 style={{ fontSize: 14, margin: "16px 0 10px", color: "var(--ink)" }}>
-                Examples
-              </h3>
-              <div style={{ display: "grid", gap: 12, marginBottom: 20 }}>
+              <div style={{ marginTop: 16 }}>
+                <h3 style={{ fontSize: 13, textTransform: "uppercase", letterSpacing: 0.5, color: "var(--muted)", margin: "0 0 10px" }}>
+                  Examples
+                </h3>
                 {problem.examples.map((ex, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      background: "var(--accent-subtle)",
-                      border: "1px solid var(--line)",
-                      borderRadius: 10,
-                      padding: "12px 14px",
-                      fontSize: 12,
-                    }}
-                  >
-                    <div style={{ fontWeight: 700, color: "var(--purple)", marginBottom: 6 }}>
+                  <div key={idx} className="code-example-card">
+                    <strong style={{ fontSize: 11, color: "var(--purple)", display: "block", marginBottom: 4 }}>
                       Example {idx + 1}:
+                    </strong>
+                    <div style={{ fontSize: 12, fontFamily: "monospace", color: "var(--ink)" }}>
+                      <div><strong>Input:</strong> {ex.input}</div>
+                      <div><strong>Output:</strong> {ex.output}</div>
+                      {ex.explanation && (
+                        <div style={{ color: "var(--muted)", marginTop: 4, fontFamily: "inherit", fontSize: 11 }}>
+                          <strong>Explanation:</strong> {ex.explanation}
+                        </div>
+                      )}
                     </div>
-                    <div>
-                      <strong>Input:</strong> <code>{ex.input}</code>
-                    </div>
-                    <div style={{ marginTop: 4 }}>
-                      <strong>Output:</strong> <code>{ex.output}</code>
-                    </div>
-                    {ex.explanation && (
-                      <div style={{ marginTop: 4, color: "var(--muted)" }}>
-                        <strong>Explanation:</strong> {ex.explanation}
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
 
               {/* Constraints */}
-              <h3 style={{ fontSize: 14, margin: "16px 0 10px", color: "var(--ink)" }}>
-                Constraints:
-              </h3>
-              <ul
-                style={{
-                  margin: "0 0 20px",
-                  paddingLeft: 18,
-                  fontSize: 12,
-                  color: "var(--muted)",
-                  lineHeight: 1.8,
-                }}
-              >
-                {problem.constraints.map((c, i) => (
-                  <li key={i}>
-                    <code>{c}</code>
-                  </li>
-                ))}
-              </ul>
-
-              {/* Company Tags */}
-              <h3 style={{ fontSize: 13, margin: "16px 0 8px", color: "var(--muted)" }}>
-                Companies that asked this question:
-              </h3>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {problem.companies.map((comp) => (
-                  <span
-                    key={comp}
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 600,
-                      background: "var(--line)",
-                      color: "var(--ink)",
-                      padding: "3px 8px",
-                      borderRadius: 6,
-                    }}
-                  >
-                    {comp}
-                  </span>
-                ))}
-              </div>
+              {problem.constraints && problem.constraints.length > 0 && (
+                <div style={{ marginTop: 18 }}>
+                  <h3 style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: 0.5, color: "var(--muted)", margin: "0 0 8px" }}>
+                    Constraints
+                  </h3>
+                  <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "var(--muted)", lineHeight: 1.6 }}>
+                    {problem.constraints.map((c, i) => (
+                      <li key={i}>
+                        <code style={{ background: "var(--card-subtle)", padding: "1px 5px", borderRadius: 4, fontSize: 11 }}>
+                          {c}
+                        </code>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Tab Content: Hints */}
+          {/* Hints Tab */}
           {activeLeftTab === "hints" && (
-            <div className="code-pane-content animate-fade-in">
-              <h3 style={{ fontSize: 15, margin: "0 0 14px", color: "var(--ink)" }}>
-                💡 Problem Solving Hints
+            <div className="code-pane-scroll animate-fade-in">
+              <h3 style={{ fontSize: 14, margin: "0 0 12px", color: "var(--ink)" }}>
+                💡 Algorithmic Hints
               </h3>
-              <div style={{ display: "grid", gap: 12 }}>
+              <div style={{ display: "grid", gap: 10 }}>
                 {problem.hints.map((hint, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      padding: "14px",
-                      background: "var(--accent-subtle)",
-                      border: "1px solid var(--line)",
-                      borderRadius: 10,
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontWeight: 700,
-                        fontSize: 12,
-                        color: "var(--purple)",
-                        marginBottom: 6,
-                      }}
-                    >
-                      Hint {i + 1}
-                    </div>
-                    <p style={{ margin: 0, fontSize: 12, lineHeight: 1.6, color: "var(--ink)" }}>
+                  <div key={i} className="code-hint-card">
+                    <strong style={{ fontSize: 11, color: "var(--purple)", display: "block", marginBottom: 4 }}>
+                      Hint {i + 1}:
+                    </strong>
+                    <p style={{ margin: 0, fontSize: 12, color: "var(--ink)", lineHeight: 1.5 }}>
                       {hint}
                     </p>
                   </div>
@@ -461,19 +439,18 @@ export function CodeEditorStudio({ problem }: { problem: CodingProblem }) {
             </div>
           )}
 
-          {/* Tab Content: Submissions */}
+          {/* Submissions Tab */}
           {activeLeftTab === "submissions" && (
-            <div className="code-pane-content animate-fade-in">
-              <h3 style={{ fontSize: 15, margin: "0 0 14px", color: "var(--ink)" }}>
-                Submission History
+            <div className="code-pane-scroll animate-fade-in">
+              <h3 style={{ fontSize: 14, margin: "0 0 12px", color: "var(--ink)" }}>
+                📜 Your Submissions
               </h3>
               {submissions.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "30px 10px", color: "var(--muted)" }}>
-                  <History size={32} style={{ margin: "0 auto 8px" }} />
-                  <p style={{ margin: 0, fontSize: 12 }}>No submissions yet for this problem.</p>
+                <div style={{ textAlign: "center", padding: "30px 10px", color: "var(--muted)", fontSize: 12 }}>
+                  No submissions yet. Write your code and click <strong>"Submit"</strong> to record.
                 </div>
               ) : (
-                <div style={{ display: "grid", gap: 10 }}>
+                <div style={{ display: "grid", gap: 8 }}>
                   {submissions.map((sub) => {
                     const isAccepted = sub.status === "Accepted";
                     return (
@@ -568,31 +545,44 @@ export function CodeEditorStudio({ problem }: { problem: CodingProblem }) {
             </div>
           </div>
 
-          {/* Code Textarea with Line Numbers */}
+          {/* Code Textarea with Line Numbers & Error Gutter Marker */}
           <div className="code-editor-wrapper" style={{ fontSize: `${fontSize}px` }}>
             <div className="code-line-numbers" aria-hidden="true">
-              {lines.map((_, i) => (
-                <span key={i}>{i + 1}</span>
-              ))}
+              {lines.map((_, i) => {
+                const lineNum = i + 1;
+                const isError = errorLine === lineNum;
+                return (
+                  <span
+                    key={i}
+                    style={{
+                      color: isError ? "#ef4444" : undefined,
+                      fontWeight: isError ? 800 : undefined,
+                      background: isError ? "rgba(239, 68, 68, 0.2)" : undefined,
+                      display: "block",
+                      borderRadius: 2,
+                    }}
+                    title={isError ? `Error on line ${lineNum}` : undefined}
+                  >
+                    {isError ? "▶" : ""} {lineNum}
+                  </span>
+                );
+              })}
             </div>
             <textarea
               ref={textareaRef}
               value={code}
               onChange={(e) => handleCodeChange(e.target.value)}
               onKeyDown={handleKeyDown}
-              spellCheck="false"
-              autoCapitalize="off"
-              autoComplete="off"
-              autoCorrect="off"
+              spellCheck={false}
               className="code-textarea"
-              placeholder="// Write your solution here..."
+              placeholder={`// Write your ${LANGUAGE_LABELS[language].name} solution here...`}
             />
           </div>
 
-          {/* BOTTOM CONSOLE & TEST CASES DRAWER */}
+          {/* BOTTOM DRAWER: Test Cases & Execution Results */}
           <div className="code-bottom-drawer">
-            {/* Drawer Tabs */}
-            <div className="code-drawer-tabs">
+            {/* Drawer Tab Header */}
+            <div className="code-drawer-header">
               <button
                 type="button"
                 className={activeBottomTab === "testcase" ? "active" : ""}
@@ -693,7 +683,7 @@ export function CodeEditorStudio({ problem }: { problem: CodingProblem }) {
               </div>
             )}
 
-            {/* Bottom Content: Test Result Console */}
+            {/* Bottom Content: Test Result Console & VS Code / LeetCode Error Diagnostics */}
             {activeBottomTab === "result" && (
               <div className="code-drawer-content animate-fade-in">
                 {!runResult ? (
@@ -719,8 +709,16 @@ export function CodeEditorStudio({ problem }: { problem: CodingProblem }) {
                             fontSize: 16,
                             fontWeight: 800,
                             color: runResult.allPassed ? "#16a34a" : "#dc2626",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6,
                           }}
                         >
+                          {runResult.allPassed ? (
+                            <CheckCircle2 size={18} color="#16a34a" />
+                          ) : (
+                            <XCircle size={18} color="#dc2626" />
+                          )}
                           {runResult.status}
                         </span>
                         <span style={{ fontSize: 11, color: "var(--muted)" }}>
@@ -738,8 +736,55 @@ export function CodeEditorStudio({ problem }: { problem: CodingProblem }) {
                       </div>
                     </div>
 
+                    {/* VS CODE & LEETCODE DIAGNOSTIC ERROR & SUGGESTION BOX */}
+                    {runResult.diagnostic && (
+                      <div className="code-diagnostic-card">
+                        <div className="diagnostic-header">
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <Bug size={16} color="#ef4444" />
+                            <strong style={{ color: "#ef4444", fontSize: 13 }}>
+                              {runResult.diagnostic.errorType}
+                              {runResult.diagnostic.line && ` (Line ${runResult.diagnostic.line})`}
+                            </strong>
+                          </div>
+                          {runResult.diagnostic.line && (
+                            <span className="diagnostic-line-badge">
+                              Line {runResult.diagnostic.line}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Error Message */}
+                        <div className="diagnostic-msg">
+                          {runResult.diagnostic.message}
+                        </div>
+
+                        {/* Stack Trace / Code Snippet */}
+                        {runResult.diagnostic.stackTrace && (
+                          <pre className="diagnostic-traceback">
+                            {runResult.diagnostic.stackTrace}
+                          </pre>
+                        )}
+
+                        {/* VS Code / AI Smart Suggestion */}
+                        {runResult.diagnostic.suggestion && (
+                          <div className="diagnostic-suggestion-box">
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                              <Lightbulb size={14} color="#f59e0b" />
+                              <strong style={{ fontSize: 11, color: "var(--ink)" }}>
+                                VS Code / AI Suggestion & Fix:
+                              </strong>
+                            </div>
+                            <p style={{ margin: 0, fontSize: 11.5, lineHeight: 1.45, color: "var(--ink)" }}>
+                              {runResult.diagnostic.suggestion}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {/* Results Test Case Tabs */}
-                    <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", gap: 6, margin: "14px 0 10px", flexWrap: "wrap" }}>
                       {runResult.results.map((res, idx) => (
                         <button
                           key={res.id}
@@ -767,7 +812,7 @@ export function CodeEditorStudio({ problem }: { problem: CodingProblem }) {
 
                     {/* Selected Result Details */}
                     {runResult.results[selectedTestCaseIdx] && (
-                      <div>
+                      <div className="code-result-comparison">
                         <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", marginBottom: 3 }}>
                           Input:
                         </div>
@@ -852,4 +897,3 @@ export function CodeEditorStudio({ problem }: { problem: CodingProblem }) {
     </div>
   );
 }
-

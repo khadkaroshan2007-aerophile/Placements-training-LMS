@@ -8,8 +8,6 @@ import {
   Camera,
   CheckCircle2,
   ChevronDown,
-  ChevronRight,
-  ChevronUp,
   Download,
   Edit3,
   Eye,
@@ -70,25 +68,22 @@ const AVATAR_PRESETS = [
 
 export function ResumeBuilderStudio() {
   const [resume, setResume] = useState<ResumeData>(sampleResumeData);
-  const [templateId, setTemplateId] = useState<ResumeTemplateId>("modern");
+  const [templateId, setTemplateId] = useState<ResumeTemplateId>("creative-duo");
   const [accentColor, setAccentColor] = useState<ResumeAccentColor>("purple");
-  const [activeFormTab, setActiveFormTab] = useState<
-    "personal" | "summary" | "skills" | "experience" | "projects" | "education" | "certifications"
-  >("personal");
-  const [mobileTab, setMobileTab] = useState<"edit" | "preview">("edit");
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [showAtsModal, setShowAtsModal] = useState(false);
-  const [showPhotoModal, setShowPhotoModal] = useState(false);
-  const [isDirectEditable, setIsDirectEditable] = useState(true);
-  const [zoomLevel, setZoomLevel] = useState(1);
+  const [isDirectEditable, setIsDirectEditable] = useState<boolean>(true);
+  const [showAtsModal, setShowAtsModal] = useState<boolean>(false);
+  const [showPhotoModal, setShowPhotoModal] = useState<boolean>(false);
+  const [showAiModal, setShowAiModal] = useState<boolean>(false);
+  const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const draft = getStoredResumeDraft();
     const settings = getStoredResumeSettings();
     setResume(draft);
-    setTemplateId(settings.templateId);
-    setAccentColor(settings.accentColor);
+    if (settings.templateId) setTemplateId(settings.templateId);
+    if (settings.accentColor) setAccentColor(settings.accentColor);
   }, []);
 
   function updateResume(updated: ResumeData) {
@@ -113,33 +108,70 @@ export function ResumeBuilderStudio() {
     }
   }
 
-  // Clear form
+  // Clear resume
   function handleClearForm() {
-    if (confirm("Clear all resume fields?")) {
+    if (confirm("Clear resume contents to start fresh?")) {
       const empty: ResumeData = {
         personal: {
-          fullName: "",
-          jobTitle: "",
-          email: "",
-          phone: "",
-          location: "",
-          linkedin: "",
-          github: "",
-          portfolio: "",
-          summary: "",
+          fullName: "Your Full Name",
+          jobTitle: "Target Job Title",
+          email: "email@example.com",
+          phone: "+91 98765 43210",
+          location: "City, Country",
+          linkedin: "linkedin.com/in/username",
+          github: "github.com/username",
+          portfolio: "portfolio.dev",
+          summary: "Write your professional summary here...",
           photoUrl: "",
           showPhoto: false,
         },
         skills: {
-          languages: "",
-          frameworks: "",
-          toolsAndDatabases: "",
-          coreConcepts: "",
+          languages: "Java, Python, C++, TypeScript, SQL",
+          frameworks: "React, Next.js, Node.js, Express, Spring Boot",
+          toolsAndDatabases: "PostgreSQL, MongoDB, Redis, Docker, Git, AWS",
+          coreConcepts: "Data Structures & Algorithms, System Design, REST APIs",
         },
-        experience: [],
-        projects: [],
-        education: [],
-        certifications: [],
+        experience: [
+          {
+            id: `exp-${Date.now()}`,
+            company: "Company Name",
+            role: "Software Engineer",
+            location: "City, Country",
+            startDate: "2023",
+            endDate: "Present",
+            current: true,
+            bullets: ["Spearheaded development of scalable features and optimized latency."],
+          },
+        ],
+        projects: [
+          {
+            id: `proj-${Date.now()}`,
+            title: "Project Name",
+            techStack: "Next.js, TypeScript, Tailwind CSS",
+            link: "https://github.com/user/project",
+            bullets: ["Engineered responsive application featuring real-time data sync."],
+          },
+        ],
+        education: [
+          {
+            id: `edu-${Date.now()}`,
+            institution: "University Name",
+            degree: "Bachelor of Technology",
+            field: "Computer Science",
+            location: "City, Country",
+            startDate: "2020",
+            endDate: "2024",
+            grade: "CGPA: 8.8 / 10",
+          },
+        ],
+        certifications: [
+          {
+            id: `cert-${Date.now()}`,
+            name: "AWS Certified Developer",
+            issuer: "Amazon Web Services",
+            date: "2024",
+          },
+        ],
       };
       updateResume(empty);
     }
@@ -150,7 +182,6 @@ export function ResumeBuilderStudio() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check size limit (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       alert("Image size must be under 5MB.");
       return;
@@ -179,8 +210,9 @@ export function ResumeBuilderStudio() {
       const role = resume.personal.jobTitle || "Software Engineer";
       const langs = resume.skills.languages || "modern technologies";
       const summaryOptions = [
-        `Results-oriented ${role} with strong foundational expertise in ${langs}. Demonstrated ability to architect high-performance web applications, optimize backend latency, and deliver scalable full-stack features. Passionate about clean code architecture, problem-solving, and high-impact engineering.`,
+        `Results-driven ${role} with strong foundational expertise in ${langs}. Demonstrated ability to architect high-performance web applications, optimize backend latency, and deliver scalable full-stack features. Passionate about clean code architecture, algorithmic problem-solving, and high-impact engineering.`,
         `High-performing ${role} equipped with solid proficiency in ${langs} and distributed software design. Proven track record of developing reliable software systems, collaborating in cross-functional Agile environments, and shipping production-ready code with 99.9% uptime.`,
+        `Dynamic ${role} specialized in building end-to-end applications using ${langs}. Strong communicator with solid background in data structures, API architecture, and database optimization for high-concurrency systems.`,
       ];
       const selected = summaryOptions[Math.floor(Math.random() * summaryOptions.length)];
       updateResume({
@@ -188,124 +220,37 @@ export function ResumeBuilderStudio() {
         personal: { ...resume.personal, summary: selected },
       });
       setIsAiLoading(false);
+      setShowAiModal(false);
     }, 600);
   }
 
-  // AI Bullet Points Polisher
-  function handleAiPolishBullets(type: "experience" | "project", id: string) {
+  // AI Polish All Bullets
+  function handleAiPolishAllBullets() {
     setIsAiLoading(true);
     setTimeout(() => {
-      if (type === "experience") {
-        const updatedExp = resume.experience.map((exp) => {
-          if (exp.id === id) {
-            const polished = exp.bullets.map((b) => {
-              if (!b.trim()) return b;
-              if (b.includes("Worked on") || b.includes("Responsible for")) {
-                return b.replace("Worked on", "Spearheaded development of").replace("Responsible for", "Architected and delivered");
-              }
-              return `Engineered and optimized ${b.replace(/^([A-Z])/, (m) => m.toLowerCase())}, achieving a 30% boost in system performance.`;
-            });
-            return { ...exp, bullets: polished };
+      const updatedExp = resume.experience.map((exp) => ({
+        ...exp,
+        bullets: exp.bullets.map((b) => {
+          if (!b.trim()) return b;
+          if (b.includes("Worked on") || b.includes("Responsible for")) {
+            return b.replace("Worked on", "Spearheaded development of").replace("Responsible for", "Architected and delivered");
           }
-          return exp;
-        });
-        updateResume({ ...resume, experience: updatedExp });
-      } else {
-        const updatedProj = resume.projects.map((proj) => {
-          if (proj.id === id) {
-            const polished = proj.bullets.map((b) => {
-              if (!b.trim()) return b;
-              return `Developed and deployed ${b.replace(/^([A-Z])/, (m) => m.toLowerCase())}, supporting high concurrent throughput and seamless user experience.`;
-            });
-            return { ...proj, bullets: polished };
-          }
-          return proj;
-        });
-        updateResume({ ...resume, projects: updatedProj });
-      }
+          return `Engineered and optimized ${b.replace(/^([A-Z])/, (m) => m.toLowerCase())}, boosting performance and throughput.`;
+        }),
+      }));
+
+      const updatedProj = resume.projects.map((proj) => ({
+        ...proj,
+        bullets: proj.bullets.map((b) => {
+          if (!b.trim()) return b;
+          return `Developed and deployed ${b.replace(/^([A-Z])/, (m) => m.toLowerCase())}, achieving sub-second query response.`;
+        }),
+      }));
+
+      updateResume({ ...resume, experience: updatedExp, projects: updatedProj });
       setIsAiLoading(false);
-    }, 500);
-  }
-
-  // Experience Handlers
-  function addExperience() {
-    const newItem: ExperienceItem = {
-      id: `exp-${Date.now()}`,
-      company: "",
-      role: "",
-      location: "",
-      startDate: "",
-      endDate: "",
-      current: false,
-      bullets: ["Developed key modules and collaborated with cross-functional engineering teams."],
-    };
-    updateResume({ ...resume, experience: [newItem, ...resume.experience] });
-  }
-
-  function removeExperience(id: string) {
-    updateResume({
-      ...resume,
-      experience: resume.experience.filter((e) => e.id !== id),
-    });
-  }
-
-  // Project Handlers
-  function addProject() {
-    const newItem: ProjectItem = {
-      id: `proj-${Date.now()}`,
-      title: "",
-      techStack: "",
-      link: "",
-      bullets: ["Engineered scalable architecture with clean API design and comprehensive test coverage."],
-    };
-    updateResume({ ...resume, projects: [newItem, ...resume.projects] });
-  }
-
-  function removeProject(id: string) {
-    updateResume({
-      ...resume,
-      projects: resume.projects.filter((p) => p.id !== id),
-    });
-  }
-
-  // Education Handlers
-  function addEducation() {
-    const newItem: EducationItem = {
-      id: `edu-${Date.now()}`,
-      institution: "",
-      degree: "B.Tech",
-      field: "Computer Science",
-      location: "",
-      startDate: "2020",
-      endDate: "2024",
-      grade: "",
-    };
-    updateResume({ ...resume, education: [...resume.education, newItem] });
-  }
-
-  function removeEducation(id: string) {
-    updateResume({
-      ...resume,
-      education: resume.education.filter((e) => e.id !== id),
-    });
-  }
-
-  // Certification Handlers
-  function addCertification() {
-    const newItem: CertificationItem = {
-      id: `cert-${Date.now()}`,
-      name: "",
-      issuer: "",
-      date: new Date().getFullYear().toString(),
-    };
-    updateResume({ ...resume, certifications: [...resume.certifications, newItem] });
-  }
-
-  function removeCertification(id: string) {
-    updateResume({
-      ...resume,
-      certifications: resume.certifications.filter((c) => c.id !== id),
-    });
+      setShowAiModal(false);
+    }, 600);
   }
 
   // Print PDF Trigger
@@ -327,13 +272,13 @@ export function ResumeBuilderStudio() {
         onChange={handleFileUpload}
       />
 
-      {/* Top Header & Toolbar */}
+      {/* Top Header & Studio Navigation */}
       <div className="resume-builder-header">
         <div>
-          <div className="eyebrow">CUSTOMIZABLE RESUME BUILDER</div>
+          <div className="eyebrow">A4 RESUME BUILDER & DESIGN STUDIO</div>
           <h1 style={{ fontSize: 24, margin: "4px 0 2px" }}>Placement Resume Studio</h1>
           <p style={{ color: "var(--muted)", margin: 0, fontSize: 13 }}>
-            Edit details directly on the sample resume or use the form, customize photo & templates, and export to PDF.
+            Customize your details directly inside the A4 paper below, choose creative templates, and export to PDF.
           </p>
         </div>
 
@@ -352,10 +297,20 @@ export function ResumeBuilderStudio() {
           <button
             type="button"
             className="learning-button secondary"
+            onClick={() => setShowAiModal(true)}
+            style={{ fontSize: 12, padding: "8px 12px" }}
+            title="Enhance summary and polish bullet points with AI"
+          >
+            <Sparkles size={14} color="var(--purple)" /> AI Assistant
+          </button>
+
+          <button
+            type="button"
+            className="learning-button secondary"
             onClick={() => setShowAtsModal(true)}
             style={{ fontSize: 12, padding: "8px 12px" }}
           >
-            <Sparkles size={14} color="var(--purple)" /> ATS Score:{" "}
+            <CheckCircle2 size={14} color="#16a34a" /> ATS Score:{" "}
             <strong>{atsScore.score}/100</strong>
           </button>
 
@@ -364,9 +319,9 @@ export function ResumeBuilderStudio() {
             className="learning-button secondary"
             onClick={handleLoadSample}
             style={{ fontSize: 12, padding: "8px 12px" }}
-            title="Pre-fill with a sample CS resume profile"
+            title="Pre-fill with sample profile"
           >
-            <RotateCcw size={14} /> Sample Profile
+            <RotateCcw size={14} /> Sample
           </button>
 
           <button
@@ -380,965 +335,164 @@ export function ResumeBuilderStudio() {
         </div>
       </div>
 
-      {/* Mobile Mode Switcher */}
-      <div className="resume-mobile-toggle">
-        <button
-          type="button"
-          className={mobileTab === "edit" ? "active" : ""}
-          onClick={() => setMobileTab("edit")}
-        >
-          <FileText size={14} /> Edit Form
-        </button>
-        <button
-          type="button"
-          className={mobileTab === "preview" ? "active" : ""}
-          onClick={() => setMobileTab("preview")}
-        >
-          <Eye size={14} /> Direct Resume Canvas
-        </button>
-      </div>
-
-      {/* Split-Screen Studio */}
-      <div className="resume-studio-split">
-        {/* LEFT PANE: Form Inputs & AI Polish */}
-        <div className={`resume-form-pane ${mobileTab === "edit" ? "mobile-show" : ""}`}>
-          {/* Navigation Category Tabs */}
-          <div className="resume-form-nav">
+      {/* Top Customizer Bar for Single A4 Studio */}
+      <div className="resume-customizer-bar">
+        {/* Template Selector */}
+        <div className="customizer-group">
+          <span className="customizer-label">Template:</span>
+          <div className="template-select-pills">
             <button
               type="button"
-              className={activeFormTab === "personal" ? "active" : ""}
-              onClick={() => setActiveFormTab("personal")}
+              className={templateId === "creative-duo" ? "active" : ""}
+              onClick={() => handleTemplateChange("creative-duo")}
             >
-              <User size={14} /> Personal & Photo
+              Creative Duo
             </button>
             <button
               type="button"
-              className={activeFormTab === "summary" ? "active" : ""}
-              onClick={() => setActiveFormTab("summary")}
+              className={templateId === "creative-banner" ? "active" : ""}
+              onClick={() => handleTemplateChange("creative-banner")}
             >
-              <Wand2 size={14} /> Summary
+              Creative Banner
             </button>
             <button
               type="button"
-              className={activeFormTab === "skills" ? "active" : ""}
-              onClick={() => setActiveFormTab("skills")}
+              className={templateId === "modern" ? "active" : ""}
+              onClick={() => handleTemplateChange("modern")}
             >
-              <FileCode size={14} /> Skills
+              Modern Tech
             </button>
             <button
               type="button"
-              className={activeFormTab === "experience" ? "active" : ""}
-              onClick={() => setActiveFormTab("experience")}
+              className={templateId === "compact" ? "active" : ""}
+              onClick={() => handleTemplateChange("compact")}
             >
-              <Briefcase size={14} /> Experience ({resume.experience.length})
+              Stanford
             </button>
             <button
               type="button"
-              className={activeFormTab === "projects" ? "active" : ""}
-              onClick={() => setActiveFormTab("projects")}
+              className={templateId === "classic" ? "active" : ""}
+              onClick={() => handleTemplateChange("classic")}
             >
-              <Layers size={14} /> Projects ({resume.projects.length})
+              Classic ATS
             </button>
-            <button
-              type="button"
-              className={activeFormTab === "education" ? "active" : ""}
-              onClick={() => setActiveFormTab("education")}
-            >
-              <GraduationCap size={14} /> Education
-            </button>
-            <button
-              type="button"
-              className={activeFormTab === "certifications" ? "active" : ""}
-              onClick={() => setActiveFormTab("certifications")}
-            >
-              <Award size={14} /> Certifications
-            </button>
-          </div>
-
-          {/* Form Content Area */}
-          <div className="resume-form-body">
-            {/* 1. PERSONAL INFO & PHOTO */}
-            {activeFormTab === "personal" && (
-              <div className="animate-fade-in form-section-wrap">
-                {/* Photo Upload Widget */}
-                <div className="card resume-photo-card" style={{ marginBottom: 16, padding: 14 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <div
-                        className="photo-thumbnail"
-                        onClick={() => setShowPhotoModal(true)}
-                        title="Click to change photo"
-                      >
-                        {resume.personal.photoUrl && resume.personal.showPhoto ? (
-                          <img
-                            src={resume.personal.photoUrl}
-                            alt="Profile"
-                            style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
-                          />
-                        ) : (
-                          <div className="photo-placeholder-circle">
-                            <Camera size={18} color="var(--muted)" />
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <strong style={{ fontSize: 13, display: "block", color: "var(--ink)" }}>
-                          Profile Photo & Headshot
-                        </strong>
-                        <span style={{ fontSize: 11, color: "var(--muted)" }}>
-                          {resume.personal.showPhoto ? "Visible on resume" : "Hidden from resume"}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <button
-                        type="button"
-                        className="learning-button secondary"
-                        style={{ fontSize: 11, padding: "5px 10px" }}
-                        onClick={() => setShowPhotoModal(true)}
-                      >
-                        <Camera size={12} /> {resume.personal.photoUrl ? "Change Photo" : "Add Photo"}
-                      </button>
-
-                      <label className="toggle-label-wrap" style={{ fontSize: 11, display: "inline-flex", alignItems: "center", gap: 5, cursor: "pointer" }}>
-                        <input
-                          type="checkbox"
-                          checked={Boolean(resume.personal.showPhoto)}
-                          onChange={(e) =>
-                            updateResume({
-                              ...resume,
-                              personal: { ...resume.personal, showPhoto: e.target.checked },
-                            })
-                          }
-                        />
-                        <span>Show on resume</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                <h3 className="form-section-title">Personal Contact Details</h3>
-                <div className="form-grid-2">
-                  <label className="resume-label">
-                    Full Name
-                    <input
-                      type="text"
-                      className="resume-input"
-                      placeholder="e.g. Alex Rivera"
-                      value={resume.personal.fullName}
-                      onChange={(e) =>
-                        updateResume({
-                          ...resume,
-                          personal: { ...resume.personal, fullName: e.target.value },
-                        })
-                      }
-                    />
-                  </label>
-
-                  <label className="resume-label">
-                    Target Job Title
-                    <input
-                      type="text"
-                      className="resume-input"
-                      placeholder="e.g. Full Stack Engineer / SDE-1"
-                      value={resume.personal.jobTitle}
-                      onChange={(e) =>
-                        updateResume({
-                          ...resume,
-                          personal: { ...resume.personal, jobTitle: e.target.value },
-                        })
-                      }
-                    />
-                  </label>
-
-                  <label className="resume-label">
-                    Email Address
-                    <input
-                      type="email"
-                      className="resume-input"
-                      placeholder="alex@example.com"
-                      value={resume.personal.email}
-                      onChange={(e) =>
-                        updateResume({
-                          ...resume,
-                          personal: { ...resume.personal, email: e.target.value },
-                        })
-                      }
-                    />
-                  </label>
-
-                  <label className="resume-label">
-                    Phone Number
-                    <input
-                      type="tel"
-                      className="resume-input"
-                      placeholder="+91 98765 43210"
-                      value={resume.personal.phone}
-                      onChange={(e) =>
-                        updateResume({
-                          ...resume,
-                          personal: { ...resume.personal, phone: e.target.value },
-                        })
-                      }
-                    />
-                  </label>
-
-                  <label className="resume-label">
-                    Location (City, Country)
-                    <input
-                      type="text"
-                      className="resume-input"
-                      placeholder="Bangalore, India"
-                      value={resume.personal.location}
-                      onChange={(e) =>
-                        updateResume({
-                          ...resume,
-                          personal: { ...resume.personal, location: e.target.value },
-                        })
-                      }
-                    />
-                  </label>
-
-                  <label className="resume-label">
-                    LinkedIn Profile URL
-                    <input
-                      type="text"
-                      className="resume-input"
-                      placeholder="linkedin.com/in/username"
-                      value={resume.personal.linkedin}
-                      onChange={(e) =>
-                        updateResume({
-                          ...resume,
-                          personal: { ...resume.personal, linkedin: e.target.value },
-                        })
-                      }
-                    />
-                  </label>
-
-                  <label className="resume-label">
-                    GitHub Profile URL
-                    <input
-                      type="text"
-                      className="resume-input"
-                      placeholder="github.com/username"
-                      value={resume.personal.github}
-                      onChange={(e) =>
-                        updateResume({
-                          ...resume,
-                          personal: { ...resume.personal, github: e.target.value },
-                        })
-                      }
-                    />
-                  </label>
-
-                  <label className="resume-label">
-                    Portfolio / Website URL
-                    <input
-                      type="text"
-                      className="resume-input"
-                      placeholder="portfolio.dev"
-                      value={resume.personal.portfolio}
-                      onChange={(e) =>
-                        updateResume({
-                          ...resume,
-                          personal: { ...resume.personal, portfolio: e.target.value },
-                        })
-                      }
-                    />
-                  </label>
-                </div>
-              </div>
-            )}
-
-            {/* 2. PROFESSIONAL SUMMARY */}
-            {activeFormTab === "summary" && (
-              <div className="animate-fade-in form-section-wrap">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                  <h3 className="form-section-title" style={{ margin: 0 }}>Professional Summary</h3>
-                  <button
-                    type="button"
-                    className="learning-button"
-                    onClick={handleAiSummaryGenerate}
-                    disabled={isAiLoading}
-                    style={{ fontSize: 11, padding: "6px 12px" }}
-                  >
-                    <Sparkles size={13} /> {isAiLoading ? "Writing..." : "✨ AI Generate / Polish"}
-                  </button>
-                </div>
-                <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 12px" }}>
-                  Write a concise 2-3 sentence overview highlighting your core strengths, technical stack, and placement focus.
-                </p>
-                <textarea
-                  className="resume-textarea"
-                  rows={6}
-                  placeholder="e.g. Dedicated software engineer with 2+ years of hands-on experience in React, Node.js, and cloud services..."
-                  value={resume.personal.summary}
-                  onChange={(e) =>
-                    updateResume({
-                      ...resume,
-                      personal: { ...resume.personal, summary: e.target.value },
-                    })
-                  }
-                />
-              </div>
-            )}
-
-            {/* 3. TECHNICAL SKILLS */}
-            {activeFormTab === "skills" && (
-              <div className="animate-fade-in form-section-wrap">
-                <h3 className="form-section-title">Technical Skills & Competencies</h3>
-                <div style={{ display: "grid", gap: 14 }}>
-                  <label className="resume-label">
-                    Programming Languages
-                    <input
-                      type="text"
-                      className="resume-input"
-                      placeholder="e.g. Java, Python, C++, TypeScript, JavaScript, SQL"
-                      value={resume.skills.languages}
-                      onChange={(e) =>
-                        updateResume({
-                          ...resume,
-                          skills: { ...resume.skills, languages: e.target.value },
-                        })
-                      }
-                    />
-                  </label>
-
-                  <label className="resume-label">
-                    Frameworks & Libraries
-                    <input
-                      type="text"
-                      className="resume-input"
-                      placeholder="e.g. React, Next.js, Node.js, Express, Tailwind CSS, Spring Boot"
-                      value={resume.skills.frameworks}
-                      onChange={(e) =>
-                        updateResume({
-                          ...resume,
-                          skills: { ...resume.skills, frameworks: e.target.value },
-                        })
-                      }
-                    />
-                  </label>
-
-                  <label className="resume-label">
-                    Developer Tools & Databases
-                    <input
-                      type="text"
-                      className="resume-input"
-                      placeholder="e.g. PostgreSQL, MongoDB, Redis, Docker, Git, AWS, Supabase"
-                      value={resume.skills.toolsAndDatabases}
-                      onChange={(e) =>
-                        updateResume({
-                          ...resume,
-                          skills: { ...resume.skills, toolsAndDatabases: e.target.value },
-                        })
-                      }
-                    />
-                  </label>
-
-                  <label className="resume-label">
-                    Core CS Concepts
-                    <input
-                      type="text"
-                      className="resume-input"
-                      placeholder="e.g. Data Structures & Algorithms, System Design, REST APIs, OOPs"
-                      value={resume.skills.coreConcepts}
-                      onChange={(e) =>
-                        updateResume({
-                          ...resume,
-                          skills: { ...resume.skills, coreConcepts: e.target.value },
-                        })
-                      }
-                    />
-                  </label>
-                </div>
-              </div>
-            )}
-
-            {/* 4. WORK EXPERIENCE */}
-            {activeFormTab === "experience" && (
-              <div className="animate-fade-in form-section-wrap">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                  <h3 className="form-section-title" style={{ margin: 0 }}>Work & Internship Experience</h3>
-                  <button
-                    type="button"
-                    className="learning-button"
-                    onClick={addExperience}
-                    style={{ fontSize: 11, padding: "6px 12px" }}
-                  >
-                    <Plus size={14} /> Add Experience
-                  </button>
-                </div>
-
-                {resume.experience.length === 0 ? (
-                  <div className="resume-empty-box">
-                    <Briefcase size={28} style={{ color: "var(--muted)", margin: "0 auto 8px" }} />
-                    <p>No work experiences added yet.</p>
-                    <button type="button" className="learning-button secondary" onClick={addExperience}>
-                      + Add Work Experience
-                    </button>
-                  </div>
-                ) : (
-                  <div style={{ display: "grid", gap: 16 }}>
-                    {resume.experience.map((exp, idx) => (
-                      <div key={exp.id} className="card resume-item-card">
-                        <div className="item-card-header">
-                          <strong>#{idx + 1} {exp.role || "Job Role"} {exp.company ? `@ ${exp.company}` : ""}</strong>
-                          <div style={{ display: "flex", gap: 6 }}>
-                            <button
-                              type="button"
-                              className="learning-button secondary"
-                              style={{ fontSize: 10, padding: "4px 8px" }}
-                              onClick={() => handleAiPolishBullets("experience", exp.id)}
-                              disabled={isAiLoading}
-                              title="Enhance bullets with high-impact action verbs and metrics"
-                            >
-                              <Sparkles size={11} /> AI Polish
-                            </button>
-                            <button
-                              type="button"
-                              className="resume-delete-btn"
-                              onClick={() => removeExperience(exp.id)}
-                              title="Remove"
-                            >
-                              <Trash2 size={13} />
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="form-grid-2" style={{ marginTop: 10 }}>
-                          <label className="resume-label">
-                            Job Title / Position
-                            <input
-                              type="text"
-                              className="resume-input"
-                              placeholder="e.g. Software Engineering Intern"
-                              value={exp.role}
-                              onChange={(e) => {
-                                const updated = resume.experience.map((item) =>
-                                  item.id === exp.id ? { ...item, role: e.target.value } : item
-                                );
-                                updateResume({ ...resume, experience: updated });
-                              }}
-                            />
-                          </label>
-
-                          <label className="resume-label">
-                            Company Name
-                            <input
-                              type="text"
-                              className="resume-input"
-                              placeholder="e.g. TechCorp Solutions"
-                              value={exp.company}
-                              onChange={(e) => {
-                                const updated = resume.experience.map((item) =>
-                                  item.id === exp.id ? { ...item, company: e.target.value } : item
-                                );
-                                updateResume({ ...resume, experience: updated });
-                              }}
-                            />
-                          </label>
-
-                          <label className="resume-label">
-                            Location
-                            <input
-                              type="text"
-                              className="resume-input"
-                              placeholder="e.g. Bangalore, India / Remote"
-                              value={exp.location}
-                              onChange={(e) => {
-                                const updated = resume.experience.map((item) =>
-                                  item.id === exp.id ? { ...item, location: e.target.value } : item
-                                );
-                                updateResume({ ...resume, experience: updated });
-                              }}
-                            />
-                          </label>
-
-                          <label className="resume-label">
-                            Dates (Start – End)
-                            <input
-                              type="text"
-                              className="resume-input"
-                              placeholder="e.g. Jan 2024 – Jun 2024"
-                              value={`${exp.startDate} – ${exp.current ? "Present" : exp.endDate}`}
-                              onChange={(e) => {
-                                const parts = e.target.value.split("–").map((p) => p.trim());
-                                const isCurr = (parts[1] || "").toLowerCase() === "present";
-                                const updated = resume.experience.map((item) =>
-                                  item.id === exp.id
-                                    ? {
-                                        ...item,
-                                        startDate: parts[0] || "",
-                                        endDate: isCurr ? "" : parts[1] || "",
-                                        current: isCurr,
-                                      }
-                                    : item
-                                );
-                                updateResume({ ...resume, experience: updated });
-                              }}
-                            />
-                          </label>
-                        </div>
-
-                        {/* Bullet Points */}
-                        <div style={{ marginTop: 12 }}>
-                          <label className="resume-label">
-                            Key Accomplishments & Metrics (1 per line)
-                          </label>
-                          <textarea
-                            className="resume-textarea"
-                            rows={3}
-                            placeholder="Enter accomplishments (one per line)..."
-                            value={exp.bullets.join("\n")}
-                            onChange={(e) => {
-                              const bullets = e.target.value.split("\n");
-                              const updated = resume.experience.map((item) =>
-                                item.id === exp.id ? { ...item, bullets } : item
-                              );
-                              updateResume({ ...resume, experience: updated });
-                            }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 5. PROJECTS */}
-            {activeFormTab === "projects" && (
-              <div className="animate-fade-in form-section-wrap">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                  <h3 className="form-section-title" style={{ margin: 0 }}>Featured Technical Projects</h3>
-                  <button
-                    type="button"
-                    className="learning-button"
-                    onClick={addProject}
-                    style={{ fontSize: 11, padding: "6px 12px" }}
-                  >
-                    <Plus size={14} /> Add Project
-                  </button>
-                </div>
-
-                {resume.projects.length === 0 ? (
-                  <div className="resume-empty-box">
-                    <Layers size={28} style={{ color: "var(--muted)", margin: "0 auto 8px" }} />
-                    <p>No projects added yet.</p>
-                    <button type="button" className="learning-button secondary" onClick={addProject}>
-                      + Add First Project
-                    </button>
-                  </div>
-                ) : (
-                  <div style={{ display: "grid", gap: 16 }}>
-                    {resume.projects.map((proj, idx) => (
-                      <div key={proj.id} className="card resume-item-card">
-                        <div className="item-card-header">
-                          <strong>#{idx + 1} {proj.title || "Project Title"}</strong>
-                          <div style={{ display: "flex", gap: 6 }}>
-                            <button
-                              type="button"
-                              className="learning-button secondary"
-                              style={{ fontSize: 10, padding: "4px 8px" }}
-                              onClick={() => handleAiPolishBullets("project", proj.id)}
-                              disabled={isAiLoading}
-                            >
-                              <Sparkles size={11} /> AI Polish
-                            </button>
-                            <button
-                              type="button"
-                              className="resume-delete-btn"
-                              onClick={() => removeProject(proj.id)}
-                            >
-                              <Trash2 size={13} />
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="form-grid-2" style={{ marginTop: 10 }}>
-                          <label className="resume-label">
-                            Project Title
-                            <input
-                              type="text"
-                              className="resume-input"
-                              placeholder="e.g. PlacePrep AI"
-                              value={proj.title}
-                              onChange={(e) => {
-                                const updated = resume.projects.map((item) =>
-                                  item.id === proj.id ? { ...item, title: e.target.value } : item
-                                );
-                                updateResume({ ...resume, projects: updated });
-                              }}
-                            />
-                          </label>
-
-                          <label className="resume-label">
-                            Tech Stack Used
-                            <input
-                              type="text"
-                              className="resume-input"
-                              placeholder="e.g. Next.js 15, TypeScript, Tailwind CSS"
-                              value={proj.techStack}
-                              onChange={(e) => {
-                                const updated = resume.projects.map((item) =>
-                                  item.id === proj.id ? { ...item, techStack: e.target.value } : item
-                                );
-                                updateResume({ ...resume, projects: updated });
-                              }}
-                            />
-                          </label>
-
-                          <label className="resume-label" style={{ gridColumn: "1 / -1" }}>
-                            Project / GitHub URL
-                            <input
-                              type="text"
-                              className="resume-input"
-                              placeholder="e.g. https://github.com/user/project"
-                              value={proj.link}
-                              onChange={(e) => {
-                                const updated = resume.projects.map((item) =>
-                                  item.id === proj.id ? { ...item, link: e.target.value } : item
-                                );
-                                updateResume({ ...resume, projects: updated });
-                              }}
-                            />
-                          </label>
-                        </div>
-
-                        <div style={{ marginTop: 12 }}>
-                          <label className="resume-label">
-                            Project Highlights & Outcomes (1 per line)
-                          </label>
-                          <textarea
-                            className="resume-textarea"
-                            rows={3}
-                            placeholder="Enter project bullet points..."
-                            value={proj.bullets.join("\n")}
-                            onChange={(e) => {
-                              const bullets = e.target.value.split("\n");
-                              const updated = resume.projects.map((item) =>
-                                item.id === proj.id ? { ...item, bullets } : item
-                              );
-                              updateResume({ ...resume, projects: updated });
-                            }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 6. EDUCATION */}
-            {activeFormTab === "education" && (
-              <div className="animate-fade-in form-section-wrap">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                  <h3 className="form-section-title" style={{ margin: 0 }}>Education & Academic Background</h3>
-                  <button
-                    type="button"
-                    className="learning-button"
-                    onClick={addEducation}
-                    style={{ fontSize: 11, padding: "6px 12px" }}
-                  >
-                    <Plus size={14} /> Add Education
-                  </button>
-                </div>
-
-                <div style={{ display: "grid", gap: 14 }}>
-                  {resume.education.map((edu, idx) => (
-                    <div key={edu.id} className="card resume-item-card">
-                      <div className="item-card-header">
-                        <strong>#{idx + 1} {edu.institution || "College / University"}</strong>
-                        <button
-                          type="button"
-                          className="resume-delete-btn"
-                          onClick={() => removeEducation(edu.id)}
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-
-                      <div className="form-grid-2" style={{ marginTop: 10 }}>
-                        <label className="resume-label">
-                          Institution / University
-                          <input
-                            type="text"
-                            className="resume-input"
-                            placeholder="e.g. National Institute of Technology (NIT)"
-                            value={edu.institution}
-                            onChange={(e) => {
-                              const updated = resume.education.map((item) =>
-                                item.id === edu.id ? { ...item, institution: e.target.value } : item
-                              );
-                              updateResume({ ...resume, education: updated });
-                            }}
-                          />
-                        </label>
-
-                        <label className="resume-label">
-                          Degree & Major
-                          <input
-                            type="text"
-                            className="resume-input"
-                            placeholder="e.g. B.Tech in Computer Science"
-                            value={edu.degree}
-                            onChange={(e) => {
-                              const updated = resume.education.map((item) =>
-                                item.id === edu.id ? { ...item, degree: e.target.value } : item
-                              );
-                              updateResume({ ...resume, education: updated });
-                            }}
-                          />
-                        </label>
-
-                        <label className="resume-label">
-                          Years (Start – End)
-                          <input
-                            type="text"
-                            className="resume-input"
-                            placeholder="e.g. 2020 – 2024"
-                            value={`${edu.startDate} – ${edu.endDate}`}
-                            onChange={(e) => {
-                              const parts = e.target.value.split("–").map((p) => p.trim());
-                              const updated = resume.education.map((item) =>
-                                item.id === edu.id
-                                  ? { ...item, startDate: parts[0] || "", endDate: parts[1] || "" }
-                                  : item
-                              );
-                              updateResume({ ...resume, education: updated });
-                            }}
-                          />
-                        </label>
-
-                        <label className="resume-label">
-                          Grade / CGPA
-                          <input
-                            type="text"
-                            className="resume-input"
-                            placeholder="e.g. CGPA: 8.85 / 10.0"
-                            value={edu.grade}
-                            onChange={(e) => {
-                              const updated = resume.education.map((item) =>
-                                item.id === edu.id ? { ...item, grade: e.target.value } : item
-                              );
-                              updateResume({ ...resume, education: updated });
-                            }}
-                          />
-                        </label>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* 7. CERTIFICATIONS */}
-            {activeFormTab === "certifications" && (
-              <div className="animate-fade-in form-section-wrap">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                  <h3 className="form-section-title" style={{ margin: 0 }}>Certifications & Honors</h3>
-                  <button
-                    type="button"
-                    className="learning-button"
-                    onClick={addCertification}
-                    style={{ fontSize: 11, padding: "6px 12px" }}
-                  >
-                    <Plus size={14} /> Add Certification
-                  </button>
-                </div>
-
-                <div style={{ display: "grid", gap: 12 }}>
-                  {resume.certifications.map((cert, idx) => (
-                    <div key={cert.id} className="card resume-item-card">
-                      <div className="item-card-header">
-                        <strong>#{idx + 1} {cert.name || "Certification Name"}</strong>
-                        <button
-                          type="button"
-                          className="resume-delete-btn"
-                          onClick={() => removeCertification(cert.id)}
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-
-                      <div className="form-grid-2" style={{ marginTop: 10 }}>
-                        <label className="resume-label">
-                          Certification Title
-                          <input
-                            type="text"
-                            className="resume-input"
-                            placeholder="e.g. AWS Certified Developer"
-                            value={cert.name}
-                            onChange={(e) => {
-                              const updated = resume.certifications.map((item) =>
-                                item.id === cert.id ? { ...item, name: e.target.value } : item
-                              );
-                              updateResume({ ...resume, certifications: updated });
-                            }}
-                          />
-                        </label>
-
-                        <label className="resume-label">
-                          Issuing Organization
-                          <input
-                            type="text"
-                            className="resume-input"
-                            placeholder="e.g. Amazon Web Services"
-                            value={cert.issuer}
-                            onChange={(e) => {
-                              const updated = resume.certifications.map((item) =>
-                                item.id === cert.id ? { ...item, issuer: e.target.value } : item
-                              );
-                              updateResume({ ...resume, certifications: updated });
-                            }}
-                          />
-                        </label>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
-        {/* RIGHT PANE: Live ATS-Compliant Document Preview */}
-        <div className={`resume-preview-pane ${mobileTab === "preview" ? "mobile-show" : ""}`}>
-          {/* Preview Customization Bar */}
-          <div className="resume-customizer-bar">
-            {/* Direct Edit / Clean View Mode Switcher */}
-            <div className="customizer-group">
-              <span className="customizer-label">Editing Mode:</span>
-              <div className="template-select-pills">
-                <button
-                  type="button"
-                  className={isDirectEditable ? "active" : ""}
-                  onClick={() => setIsDirectEditable(true)}
-                  title="Click directly on the resume text to edit in place"
-                >
-                  <Edit3 size={12} /> Direct Edit
-                </button>
-                <button
-                  type="button"
-                  className={!isDirectEditable ? "active" : ""}
-                  onClick={() => setIsDirectEditable(false)}
-                  title="View clean print preview"
-                >
-                  <Eye size={12} /> Preview
-                </button>
-              </div>
-            </div>
-
-            {/* Template Selector */}
-            <div className="customizer-group">
-              <span className="customizer-label">Template:</span>
-              <div className="template-select-pills">
-                <button
-                  type="button"
-                  className={templateId === "modern" ? "active" : ""}
-                  onClick={() => handleTemplateChange("modern")}
-                >
-                  Modern Tech
-                </button>
-                <button
-                  type="button"
-                  className={templateId === "classic" ? "active" : ""}
-                  onClick={() => handleTemplateChange("classic")}
-                >
-                  Classic ATS
-                </button>
-                <button
-                  type="button"
-                  className={templateId === "compact" ? "active" : ""}
-                  onClick={() => handleTemplateChange("compact")}
-                >
-                  Stanford Compact
-                </button>
-              </div>
-            </div>
-
-            {/* Accent Color Picker */}
-            <div className="customizer-group">
-              <span className="customizer-label">Theme:</span>
-              <div className="color-swatches">
-                <button
-                  type="button"
-                  className={`color-swatch purple ${accentColor === "purple" ? "selected" : ""}`}
-                  onClick={() => handleColorChange("purple")}
-                  title="Indigo Purple"
-                />
-                <button
-                  type="button"
-                  className={`color-swatch blue ${accentColor === "blue" ? "selected" : ""}`}
-                  onClick={() => handleColorChange("blue")}
-                  title="Sky Blue"
-                />
-                <button
-                  type="button"
-                  className={`color-swatch emerald ${accentColor === "emerald" ? "selected" : ""}`}
-                  onClick={() => handleColorChange("emerald")}
-                  title="Emerald Green"
-                />
-                <button
-                  type="button"
-                  className={`color-swatch slate ${accentColor === "slate" ? "selected" : ""}`}
-                  onClick={() => handleColorChange("slate")}
-                  title="Slate Black"
-                />
-              </div>
-            </div>
-
-            {/* Zoom controls */}
-            <div className="customizer-group zoom-ctrls">
-              <button
-                type="button"
-                className="code-icon-btn"
-                onClick={() => setZoomLevel((z) => Math.max(0.7, z - 0.1))}
-                title="Zoom Out"
-              >
-                <ZoomOut size={13} />
-              </button>
-              <span style={{ fontSize: 11, color: "var(--muted)" }}>
-                {Math.round(zoomLevel * 100)}%
-              </span>
-              <button
-                type="button"
-                className="code-icon-btn"
-                onClick={() => setZoomLevel((z) => Math.min(1.3, z + 0.1))}
-                title="Zoom In"
-              >
-                <ZoomIn size={13} />
-              </button>
-            </div>
+        {/* Accent Color Themes */}
+        <div className="customizer-group">
+          <span className="customizer-label">Theme:</span>
+          <div className="color-swatches">
+            <button
+              type="button"
+              className={`color-swatch purple ${accentColor === "purple" ? "selected" : ""}`}
+              onClick={() => handleColorChange("purple")}
+              title="Indigo Purple"
+            />
+            <button
+              type="button"
+              className={`color-swatch blue ${accentColor === "blue" ? "selected" : ""}`}
+              onClick={() => handleColorChange("blue")}
+              title="Sky Blue"
+            />
+            <button
+              type="button"
+              className={`color-swatch emerald ${accentColor === "emerald" ? "selected" : ""}`}
+              onClick={() => handleColorChange("emerald")}
+              title="Emerald Green"
+            />
+            <button
+              type="button"
+              className={`color-swatch rose ${accentColor === "rose" ? "selected" : ""}`}
+              onClick={() => handleColorChange("rose")}
+              title="Crimson Sunset"
+              style={{ background: "#e11d48" }}
+            />
+            <button
+              type="button"
+              className={`color-swatch amber ${accentColor === "amber" ? "selected" : ""}`}
+              onClick={() => handleColorChange("amber")}
+              title="Warm Amber"
+              style={{ background: "#d97706" }}
+            />
+            <button
+              type="button"
+              className={`color-swatch slate ${accentColor === "slate" ? "selected" : ""}`}
+              onClick={() => handleColorChange("slate")}
+              title="Midnight Slate"
+            />
           </div>
+        </div>
 
-          {/* Direct Edit Helper Hint */}
-          {isDirectEditable && (
-            <div className="resume-direct-edit-hint">
-              <span>✍️ <strong>Direct Edit Mode Enabled:</strong> Click and type directly on any section, text, or photo on the resume sample below to customize your details!</span>
-            </div>
-          )}
-
-          {/* Scaled Printable Document Container */}
-          <div className="resume-paper-scroller">
-            <div
-              className="resume-paper-wrapper"
-              id="printable-resume"
-              style={{ transform: `scale(${zoomLevel})`, transformOrigin: "top center" }}
+        {/* Direct Edit Mode Toggle */}
+        <div className="customizer-group">
+          <span className="customizer-label">Mode:</span>
+          <div className="template-select-pills">
+            <button
+              type="button"
+              className={isDirectEditable ? "active" : ""}
+              onClick={() => setIsDirectEditable(true)}
+              title="Click and type directly on the resume to edit"
             >
-              <ResumeRenderer
-                data={resume}
-                templateId={templateId}
-                accentColor={accentColor}
-                isEditable={isDirectEditable}
-                onUpdate={updateResume}
-                onPhotoUploadClick={() => setShowPhotoModal(true)}
-              />
-            </div>
+              <Edit3 size={12} /> Direct Edit
+            </button>
+            <button
+              type="button"
+              className={!isDirectEditable ? "active" : ""}
+              onClick={() => setIsDirectEditable(false)}
+              title="Clean print preview"
+            >
+              <Eye size={12} /> Clean View
+            </button>
           </div>
+        </div>
+
+        {/* Zoom Controls */}
+        <div className="customizer-group zoom-ctrls">
+          <button
+            type="button"
+            className="code-icon-btn"
+            onClick={() => setZoomLevel((z) => Math.max(0.7, z - 0.1))}
+            title="Zoom Out"
+          >
+            <ZoomOut size={13} />
+          </button>
+          <span style={{ fontSize: 11, color: "var(--muted)" }}>
+            {Math.round(zoomLevel * 100)}%
+          </span>
+          <button
+            type="button"
+            className="code-icon-btn"
+            onClick={() => setZoomLevel((z) => Math.min(1.3, z + 0.1))}
+            title="Zoom In"
+          >
+            <ZoomIn size={13} />
+          </button>
+        </div>
+      </div>
+
+      {/* Direct Edit Helper Hint */}
+      {isDirectEditable && (
+        <div className="resume-direct-edit-hint">
+          <span>✍️ <strong>Interactive A4 Paper:</strong> Click and type directly on any section, name, bullet point, skill, or photo inside the A4 paper below to customize your resume!</span>
+        </div>
+      )}
+
+      {/* SINGLE CENTERED A4 PAPER CONTAINER */}
+      <div className="resume-paper-scroller">
+        <div
+          className="resume-paper-wrapper"
+          id="printable-resume"
+          style={{ transform: `scale(${zoomLevel})`, transformOrigin: "top center" }}
+        >
+          <ResumeRenderer
+            data={resume}
+            templateId={templateId}
+            accentColor={accentColor}
+            isEditable={isDirectEditable}
+            onUpdate={updateResume}
+            onPhotoUploadClick={() => setShowPhotoModal(true)}
+          />
         </div>
       </div>
 
@@ -1478,6 +632,82 @@ export function ResumeBuilderStudio() {
                 onClick={() => setShowPhotoModal(false)}
               >
                 Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI ASSISTANT MODAL */}
+      {showAiModal && (
+        <div className="ats-modal-backdrop" onClick={() => setShowAiModal(false)}>
+          <div className="card ats-modal-card animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <div className="ats-modal-header">
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span className="stat-icon" style={{ width: 38, height: 38, borderRadius: 10 }}>
+                  <Sparkles size={18} />
+                </span>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 16 }}>AI Resume Assistant</h3>
+                  <p style={{ margin: 0, fontSize: 11, color: "var(--muted)" }}>
+                    Generate impactful summaries & polish action bullet points
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="mobile-drawer-close"
+                onClick={() => setShowAiModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ margin: "18px 0", display: "grid", gap: 14 }}>
+              <div style={{ padding: 14, background: "var(--card-subtle)", borderRadius: 10 }}>
+                <strong style={{ fontSize: 13, display: "block", color: "var(--ink)", marginBottom: 4 }}>
+                  ✨ Generate Professional Summary
+                </strong>
+                <p style={{ margin: "0 0 10px", fontSize: 11, color: "var(--muted)" }}>
+                  Tailors an impactful summary for {resume.personal.jobTitle || "Software Engineer"} using your skills.
+                </p>
+                <button
+                  type="button"
+                  className="learning-button"
+                  disabled={isAiLoading}
+                  onClick={handleAiSummaryGenerate}
+                  style={{ fontSize: 11, padding: "6px 12px" }}
+                >
+                  <Wand2 size={12} /> {isAiLoading ? "Generating..." : "Generate AI Summary"}
+                </button>
+              </div>
+
+              <div style={{ padding: 14, background: "var(--card-subtle)", borderRadius: 10 }}>
+                <strong style={{ fontSize: 13, display: "block", color: "var(--ink)", marginBottom: 4 }}>
+                  ⚡ Polish All Bullet Points
+                </strong>
+                <p style={{ margin: "0 0 10px", fontSize: 11, color: "var(--muted)" }}>
+                  Converts standard task descriptions into quantified XYZ accomplishment statements across all experience and project items.
+                </p>
+                <button
+                  type="button"
+                  className="learning-button secondary"
+                  disabled={isAiLoading}
+                  onClick={handleAiPolishAllBullets}
+                  style={{ fontSize: 11, padding: "6px 12px" }}
+                >
+                  <Sparkles size={12} /> {isAiLoading ? "Polishing..." : "Polish All Bullets"}
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                className="learning-button secondary"
+                onClick={() => setShowAiModal(false)}
+              >
+                Close
               </button>
             </div>
           </div>

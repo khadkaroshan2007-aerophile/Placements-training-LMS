@@ -1,16 +1,25 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import {
+  Award,
+  BookOpen,
+  Briefcase,
   Camera,
+  CheckCircle2,
+  Code2,
   ExternalLink,
+  FolderGit2,
   Globe,
+  GraduationCap,
+  Layers,
   Mail,
   MapPin,
   Phone,
   Plus,
+  Sparkles,
+  Terminal,
   Trash2,
-  Upload,
   User,
   X,
 } from "lucide-react";
@@ -24,11 +33,72 @@ import type {
   ResumeTemplateId,
 } from "@/lib/resume-data";
 
-const ACCENT_COLORS: Record<ResumeAccentColor, { primary: string; light: string; border: string }> = {
-  purple: { primary: "#4f46e5", light: "#eef2ff", border: "#c7d2fe" },
-  blue: { primary: "#0284c7", light: "#f0f9ff", border: "#bae6fd" },
-  emerald: { primary: "#059669", light: "#ecfdf5", border: "#a7f3d0" },
-  slate: { primary: "#1e293b", light: "#f8fafc", border: "#cbd5e1" },
+export const ACCENT_COLORS: Record<
+  ResumeAccentColor,
+  {
+    primary: string;
+    secondary: string;
+    dark: string;
+    light: string;
+    border: string;
+    text: string;
+    gradient: string;
+  }
+> = {
+  purple: {
+    primary: "#6366f1",
+    secondary: "#8b5cf6",
+    dark: "#1e1b4b",
+    light: "#f5f3ff",
+    border: "#ddd6fe",
+    text: "#4338ca",
+    gradient: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+  },
+  blue: {
+    primary: "#0284c7",
+    secondary: "#2563eb",
+    dark: "#0c2340",
+    light: "#f0f9ff",
+    border: "#bae6fd",
+    text: "#0369a1",
+    gradient: "linear-gradient(135deg, #0284c7 0%, #2563eb 100%)",
+  },
+  emerald: {
+    primary: "#059669",
+    secondary: "#10b981",
+    dark: "#064e3b",
+    light: "#ecfdf5",
+    border: "#a7f3d0",
+    text: "#047857",
+    gradient: "linear-gradient(135deg, #059669 0%, #10b981 100%)",
+  },
+  rose: {
+    primary: "#e11d48",
+    secondary: "#f43f5e",
+    dark: "#4c0519",
+    light: "#fff1f2",
+    border: "#fecdd3",
+    text: "#be123c",
+    gradient: "linear-gradient(135deg, #e11d48 0%, #f43f5e 100%)",
+  },
+  amber: {
+    primary: "#d97706",
+    secondary: "#f59e0b",
+    dark: "#451a03",
+    light: "#fffbeb",
+    border: "#fde68a",
+    text: "#b45309",
+    gradient: "linear-gradient(135deg, #d97706 0%, #f59e0b 100%)",
+  },
+  slate: {
+    primary: "#334155",
+    secondary: "#475569",
+    dark: "#0f172a",
+    light: "#f8fafc",
+    border: "#cbd5e1",
+    text: "#1e293b",
+    gradient: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
+  },
 };
 
 interface ResumeRendererProps {
@@ -50,7 +120,6 @@ export function ResumeRenderer({
 }: ResumeRendererProps) {
   const colors = ACCENT_COLORS[accentColor] || ACCENT_COLORS.purple;
 
-  // Helper updater functions
   const updatePersonal = (field: keyof ResumeData["personal"], value: any) => {
     if (!onUpdate) return;
     onUpdate({
@@ -92,7 +161,7 @@ export function ResumeRenderer({
       startDate: "2023",
       endDate: "Present",
       current: true,
-      bullets: ["Describe your impact, achievements, and technologies used (Accomplished X by Y)."],
+      bullets: ["Spearheaded scalable feature development, optimizing latency by 35%."],
     };
     onUpdate({ ...data, experience: [newExp, ...data.experience] });
   };
@@ -119,7 +188,7 @@ export function ResumeRenderer({
       title: "Project Title",
       techStack: "React, Node.js, TypeScript",
       link: "https://yourproject.com",
-      bullets: ["Engineered responsive application featuring real-time data sync and modern UI."],
+      bullets: ["Architected full-stack application featuring real-time data sync."],
     };
     onUpdate({ ...data, projects: [newProj, ...data.projects] });
   };
@@ -149,7 +218,7 @@ export function ResumeRenderer({
       location: "City, Country",
       startDate: "2020",
       endDate: "2024",
-      grade: "CGPA: 8.5 / 10",
+      grade: "CGPA: 8.8 / 10",
     };
     onUpdate({ ...data, education: [...data.education, newEdu] });
   };
@@ -201,6 +270,14 @@ export function ResumeRenderer({
     onPhotoUploadClick,
   };
 
+  if (templateId === "creative-duo") {
+    return <CreativeDuoTemplate {...sharedProps} />;
+  }
+
+  if (templateId === "creative-banner") {
+    return <CreativeBannerTemplate {...sharedProps} />;
+  }
+
   if (templateId === "classic") {
     return <ClassicATSTemplate {...sharedProps} />;
   }
@@ -240,7 +317,7 @@ function InlineField({
   if (!isEditable) {
     return (
       <Tag className={className} style={style}>
-        {value || (placeholder ? <span style={{ opacity: 0.4 }}>{placeholder}</span> : null)}
+        {value || (placeholder ? <span style={{ opacity: 0.35 }}>{placeholder}</span> : null)}
       </Tag>
     );
   }
@@ -274,7 +351,1266 @@ function escapeHtml(text: string) {
 }
 
 /* =========================================================================
-   TEMPLATE 1: MODERN TECH EXECUTIVE
+   TEMPLATE 1: CREATIVE DUO-TONE (Dual-Tone Sidebar with Timeline & Cards)
+   ========================================================================= */
+function CreativeDuoTemplate({
+  data,
+  colors,
+  isEditable,
+  updatePersonal,
+  updateSkills,
+  updateExperience,
+  deleteExperience,
+  addExperience,
+  updateProject,
+  deleteProject,
+  addProject,
+  updateEducation,
+  deleteEducation,
+  addEducation,
+  updateCertification,
+  deleteCertification,
+  addCertification,
+  onPhotoUploadClick,
+}: any) {
+  const showPhoto = data.personal.showPhoto && data.personal.photoUrl;
+
+  return (
+    <div
+      className="a4-sheet-container template-creative-duo"
+      style={
+        {
+          "--primary": colors.primary,
+          "--secondary": colors.secondary,
+          "--dark": colors.dark,
+          "--light": colors.light,
+          "--border": colors.border,
+          "--gradient": colors.gradient,
+        } as any
+      }
+    >
+      {/* LEFT SIDEBAR: DARK GRADIENT */}
+      <aside className="duo-sidebar" style={{ background: colors.gradient }}>
+        {/* Photo Container */}
+        <div className="duo-photo-box">
+          {showPhoto ? (
+            <div
+              className="duo-photo-wrap"
+              onClick={isEditable ? onPhotoUploadClick : undefined}
+              title={isEditable ? "Click to change photo" : undefined}
+            >
+              <img src={data.personal.photoUrl} alt={data.personal.fullName} className="duo-photo-img" />
+              {isEditable && (
+                <div className="photo-edit-overlay">
+                  <Camera size={16} />
+                </div>
+              )}
+            </div>
+          ) : isEditable ? (
+            <button
+              type="button"
+              onClick={onPhotoUploadClick}
+              className="duo-photo-placeholder"
+              title="Click to add photo"
+            >
+              <Camera size={20} />
+              <span>+ Photo</span>
+            </button>
+          ) : (
+            <div className="duo-monogram">
+              {(data.personal.fullName || "AR")
+                .split(" ")
+                .map((n: string) => n[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase()}
+            </div>
+          )}
+        </div>
+
+        {/* Contact Info */}
+        <div className="duo-sidebar-section">
+          <div className="duo-sidebar-title">
+            <User size={13} /> CONTACT
+          </div>
+          <div className="duo-contact-list">
+            {(data.personal.email || isEditable) && (
+              <div className="duo-contact-item">
+                <span className="duo-contact-icon">
+                  <Mail size={12} />
+                </span>
+                <InlineField
+                  value={data.personal.email}
+                  onChange={(v) => updatePersonal("email", v)}
+                  isEditable={isEditable}
+                  placeholder="alex@example.com"
+                  tag="span"
+                />
+              </div>
+            )}
+            {(data.personal.phone || isEditable) && (
+              <div className="duo-contact-item">
+                <span className="duo-contact-icon">
+                  <Phone size={12} />
+                </span>
+                <InlineField
+                  value={data.personal.phone}
+                  onChange={(v) => updatePersonal("phone", v)}
+                  isEditable={isEditable}
+                  placeholder="+91 98765 43210"
+                  tag="span"
+                />
+              </div>
+            )}
+            {(data.personal.location || isEditable) && (
+              <div className="duo-contact-item">
+                <span className="duo-contact-icon">
+                  <MapPin size={12} />
+                </span>
+                <InlineField
+                  value={data.personal.location}
+                  onChange={(v) => updatePersonal("location", v)}
+                  isEditable={isEditable}
+                  placeholder="Bangalore, India"
+                  tag="span"
+                />
+              </div>
+            )}
+            {(data.personal.linkedin || isEditable) && (
+              <div className="duo-contact-item">
+                <span className="duo-contact-icon">
+                  <Globe size={12} />
+                </span>
+                <InlineField
+                  value={data.personal.linkedin}
+                  onChange={(v) => updatePersonal("linkedin", v)}
+                  isEditable={isEditable}
+                  placeholder="linkedin.com/in/username"
+                  tag="span"
+                />
+              </div>
+            )}
+            {(data.personal.github || isEditable) && (
+              <div className="duo-contact-item">
+                <span className="duo-contact-icon">
+                  <FolderGit2 size={12} />
+                </span>
+                <InlineField
+                  value={data.personal.github}
+                  onChange={(v) => updatePersonal("github", v)}
+                  isEditable={isEditable}
+                  placeholder="github.com/username"
+                  tag="span"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Technical Skills */}
+        <div className="duo-sidebar-section">
+          <div className="duo-sidebar-title">
+            <Code2 size={13} /> TECHNICAL SKILLS
+          </div>
+          <div className="duo-skills-list">
+            <div className="duo-skill-block">
+              <strong className="duo-skill-label">Languages</strong>
+              <div className="duo-skill-text">
+                <InlineField
+                  value={data.skills.languages}
+                  onChange={(v) => updateSkills("languages", v)}
+                  isEditable={isEditable}
+                  placeholder="Java, Python, TypeScript..."
+                  tag="span"
+                />
+              </div>
+            </div>
+            <div className="duo-skill-block">
+              <strong className="duo-skill-label">Frameworks</strong>
+              <div className="duo-skill-text">
+                <InlineField
+                  value={data.skills.frameworks}
+                  onChange={(v) => updateSkills("frameworks", v)}
+                  isEditable={isEditable}
+                  placeholder="React, Next.js, Node.js..."
+                  tag="span"
+                />
+              </div>
+            </div>
+            <div className="duo-skill-block">
+              <strong className="duo-skill-label">Tools & Databases</strong>
+              <div className="duo-skill-text">
+                <InlineField
+                  value={data.skills.toolsAndDatabases}
+                  onChange={(v) => updateSkills("toolsAndDatabases", v)}
+                  isEditable={isEditable}
+                  placeholder="PostgreSQL, Docker, AWS..."
+                  tag="span"
+                />
+              </div>
+            </div>
+            <div className="duo-skill-block">
+              <strong className="duo-skill-label">Core Concepts</strong>
+              <div className="duo-skill-text">
+                <InlineField
+                  value={data.skills.coreConcepts}
+                  onChange={(v) => updateSkills("coreConcepts", v)}
+                  isEditable={isEditable}
+                  placeholder="DSA, System Design, REST APIs..."
+                  tag="span"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Education */}
+        <div className="duo-sidebar-section">
+          <div className="section-title-row">
+            <div className="duo-sidebar-title">
+              <GraduationCap size={13} /> EDUCATION
+            </div>
+            {isEditable && (
+              <button type="button" onClick={addEducation} className="duo-sidebar-add-btn">
+                <Plus size={10} />
+              </button>
+            )}
+          </div>
+          <div className="duo-edu-list">
+            {data.education.map((edu: EducationItem, idx: number) => (
+              <div key={edu.id || idx} className="duo-edu-card relative-item-group">
+                {isEditable && (
+                  <button
+                    type="button"
+                    onClick={() => deleteEducation(idx)}
+                    className="resume-delete-entry-btn"
+                  >
+                    <Trash2 size={11} />
+                  </button>
+                )}
+                <div className="duo-edu-degree">
+                  <InlineField
+                    value={edu.degree}
+                    onChange={(v) => updateEducation(idx, { ...edu, degree: v })}
+                    isEditable={isEditable}
+                    placeholder="Degree"
+                    tag="strong"
+                  />
+                  {" in "}
+                  <InlineField
+                    value={edu.field}
+                    onChange={(v) => updateEducation(idx, { ...edu, field: v })}
+                    isEditable={isEditable}
+                    placeholder="Field"
+                    tag="span"
+                  />
+                </div>
+                <div className="duo-edu-school">
+                  <InlineField
+                    value={edu.institution}
+                    onChange={(v) => updateEducation(idx, { ...edu, institution: v })}
+                    isEditable={isEditable}
+                    placeholder="Institution"
+                    tag="span"
+                  />
+                </div>
+                <div className="duo-edu-meta">
+                  <span>
+                    <InlineField
+                      value={edu.startDate}
+                      onChange={(v) => updateEducation(idx, { ...edu, startDate: v })}
+                      isEditable={isEditable}
+                      placeholder="Start"
+                      tag="span"
+                    />
+                    {" – "}
+                    <InlineField
+                      value={edu.endDate}
+                      onChange={(v) => updateEducation(idx, { ...edu, endDate: v })}
+                      isEditable={isEditable}
+                      placeholder="End"
+                      tag="span"
+                    />
+                  </span>
+                  {edu.grade && (
+                    <span className="duo-grade-badge">
+                      <InlineField
+                        value={edu.grade}
+                        onChange={(v) => updateEducation(idx, { ...edu, grade: v })}
+                        isEditable={isEditable}
+                        placeholder="Grade"
+                        tag="span"
+                      />
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Certifications */}
+        {data.certifications.length > 0 && (
+          <div className="duo-sidebar-section">
+            <div className="section-title-row">
+              <div className="duo-sidebar-title">
+                <Award size={13} /> CERTIFICATIONS
+              </div>
+              {isEditable && (
+                <button type="button" onClick={addCertification} className="duo-sidebar-add-btn">
+                  <Plus size={10} />
+                </button>
+              )}
+            </div>
+            <div className="duo-cert-list">
+              {data.certifications.map((cert: CertificationItem, idx: number) => (
+                <div key={cert.id || idx} className="duo-cert-item relative-item-group">
+                  {isEditable && (
+                    <button
+                      type="button"
+                      onClick={() => deleteCertification(idx)}
+                      className="resume-delete-entry-btn"
+                    >
+                      <Trash2 size={11} />
+                    </button>
+                  )}
+                  <strong className="duo-cert-name">
+                    <InlineField
+                      value={cert.name}
+                      onChange={(v) => updateCertification(idx, { ...cert, name: v })}
+                      isEditable={isEditable}
+                      placeholder="Certificate Name"
+                      tag="span"
+                    />
+                  </strong>
+                  <span className="duo-cert-issuer">
+                    <InlineField
+                      value={cert.issuer}
+                      onChange={(v) => updateCertification(idx, { ...cert, issuer: v })}
+                      isEditable={isEditable}
+                      placeholder="Issuer"
+                      tag="span"
+                    />{" "}
+                    ·{" "}
+                    <InlineField
+                      value={cert.date}
+                      onChange={(v) => updateCertification(idx, { ...cert, date: v })}
+                      isEditable={isEditable}
+                      placeholder="Year"
+                      tag="span"
+                    />
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </aside>
+
+      {/* RIGHT MAIN CONTENT AREA */}
+      <main className="duo-main">
+        {/* Header Title Section */}
+        <header className="duo-main-header">
+          <div className="duo-name-banner">
+            <h1 className="duo-name">
+              <InlineField
+                value={data.personal.fullName}
+                onChange={(v) => updatePersonal("fullName", v)}
+                isEditable={isEditable}
+                placeholder="YOUR FULL NAME"
+                tag="span"
+              />
+            </h1>
+            <div className="duo-job-pill" style={{ background: colors.light, color: colors.text }}>
+              <InlineField
+                value={data.personal.jobTitle}
+                onChange={(v) => updatePersonal("jobTitle", v)}
+                isEditable={isEditable}
+                placeholder="Target Job Title"
+                tag="span"
+              />
+            </div>
+          </div>
+        </header>
+
+        {/* Professional Summary */}
+        {(data.personal.summary || isEditable) && (
+          <section className="duo-section">
+            <div className="duo-section-header">
+              <span className="duo-section-dot" style={{ background: colors.primary }} />
+              <h2 className="duo-section-title" style={{ color: colors.text }}>
+                PROFILE SUMMARY
+              </h2>
+            </div>
+            <div className="duo-summary-box">
+              <InlineField
+                value={data.personal.summary}
+                onChange={(v) => updatePersonal("summary", v)}
+                isEditable={isEditable}
+                placeholder="Write your professional summary here..."
+                tag="p"
+              />
+            </div>
+          </section>
+        )}
+
+        {/* Work Experience with Timeline */}
+        <section className="duo-section">
+          <div className="section-title-row">
+            <div className="duo-section-header">
+              <span className="duo-section-dot" style={{ background: colors.primary }} />
+              <h2 className="duo-section-title" style={{ color: colors.text }}>
+                WORK EXPERIENCE
+              </h2>
+            </div>
+            {isEditable && (
+              <button type="button" onClick={addExperience} className="resume-add-entry-btn">
+                <Plus size={11} /> Add Experience
+              </button>
+            )}
+          </div>
+
+          <div className="duo-timeline">
+            {data.experience.map((exp: ExperienceItem, idx: number) => (
+              <div key={exp.id || idx} className="duo-timeline-item relative-item-group">
+                <div className="duo-timeline-node" style={{ borderColor: colors.primary }} />
+                {isEditable && (
+                  <button
+                    type="button"
+                    onClick={() => deleteExperience(idx)}
+                    className="resume-delete-entry-btn"
+                    title="Remove experience"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                )}
+                <div className="duo-item-header">
+                  <div>
+                    <h3 className="duo-item-role" style={{ color: colors.dark }}>
+                      <InlineField
+                        value={exp.role}
+                        onChange={(v) => updateExperience(idx, { ...exp, role: v })}
+                        isEditable={isEditable}
+                        placeholder="Position Role"
+                        tag="span"
+                      />
+                    </h3>
+                    <div className="duo-item-company">
+                      <InlineField
+                        value={exp.company}
+                        onChange={(v) => updateExperience(idx, { ...exp, company: v })}
+                        isEditable={isEditable}
+                        placeholder="Company"
+                        tag="strong"
+                      />
+                      {" · "}
+                      <InlineField
+                        value={exp.location}
+                        onChange={(v) => updateExperience(idx, { ...exp, location: v })}
+                        isEditable={isEditable}
+                        placeholder="Location"
+                        tag="span"
+                      />
+                    </div>
+                  </div>
+                  <span className="duo-date-chip" style={{ background: colors.light, color: colors.text }}>
+                    <InlineField
+                      value={exp.startDate}
+                      onChange={(v) => updateExperience(idx, { ...exp, startDate: v })}
+                      isEditable={isEditable}
+                      placeholder="Start"
+                      tag="span"
+                    />
+                    {" – "}
+                    <InlineField
+                      value={exp.endDate}
+                      onChange={(v) => updateExperience(idx, { ...exp, endDate: v })}
+                      isEditable={isEditable}
+                      placeholder="End"
+                      tag="span"
+                    />
+                  </span>
+                </div>
+
+                <ul className="duo-bullets">
+                  {exp.bullets.map((bullet: string, bIdx: number) => (
+                    <li key={bIdx} className="bullet-row-editable">
+                      <InlineField
+                        value={bullet}
+                        onChange={(v) => {
+                          const newBullets = [...exp.bullets];
+                          newBullets[bIdx] = v;
+                          updateExperience(idx, { ...exp, bullets: newBullets });
+                        }}
+                        isEditable={isEditable}
+                        placeholder="Accomplishment bullet..."
+                        tag="span"
+                      />
+                      {isEditable && exp.bullets.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newBullets = exp.bullets.filter((_, i) => i !== bIdx);
+                            updateExperience(idx, { ...exp, bullets: newBullets });
+                          }}
+                          className="bullet-remove-inline"
+                        >
+                          <X size={10} />
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                {isEditable && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateExperience(idx, {
+                        ...exp,
+                        bullets: [...exp.bullets, "Spearheaded key milestone delivering tangible results."],
+                      });
+                    }}
+                    className="resume-add-bullet-btn"
+                  >
+                    <Plus size={10} /> Add bullet
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Featured Projects */}
+        <section className="duo-section">
+          <div className="section-title-row">
+            <div className="duo-section-header">
+              <span className="duo-section-dot" style={{ background: colors.primary }} />
+              <h2 className="duo-section-title" style={{ color: colors.text }}>
+                KEY PROJECTS
+              </h2>
+            </div>
+            {isEditable && (
+              <button type="button" onClick={addProject} className="resume-add-entry-btn">
+                <Plus size={11} /> Add Project
+              </button>
+            )}
+          </div>
+
+          <div className="duo-projects-grid">
+            {data.projects.map((proj: ProjectItem, idx: number) => (
+              <div key={proj.id || idx} className="duo-project-card relative-item-group">
+                {isEditable && (
+                  <button
+                    type="button"
+                    onClick={() => deleteProject(idx)}
+                    className="resume-delete-entry-btn"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                )}
+                <div className="duo-project-header">
+                  <h3 className="duo-project-title" style={{ color: colors.dark }}>
+                    <InlineField
+                      value={proj.title}
+                      onChange={(v) => updateProject(idx, { ...proj, title: v })}
+                      isEditable={isEditable}
+                      placeholder="Project Name"
+                      tag="span"
+                    />
+                  </h3>
+                  {(proj.link || isEditable) && (
+                    <span className="duo-project-link">
+                      <InlineField
+                        value={proj.link}
+                        onChange={(v) => updateProject(idx, { ...proj, link: v })}
+                        isEditable={isEditable}
+                        placeholder="https://link.com"
+                        tag="span"
+                      />
+                    </span>
+                  )}
+                </div>
+
+                <div className="duo-project-stack" style={{ color: colors.text }}>
+                  <em>
+                    Stack:{" "}
+                    <InlineField
+                      value={proj.techStack}
+                      onChange={(v) => updateProject(idx, { ...proj, techStack: v })}
+                      isEditable={isEditable}
+                      placeholder="React, Next.js, Node.js..."
+                      tag="span"
+                    />
+                  </em>
+                </div>
+
+                <ul className="duo-bullets">
+                  {proj.bullets.map((b: string, bIdx: number) => (
+                    <li key={bIdx} className="bullet-row-editable">
+                      <InlineField
+                        value={b}
+                        onChange={(v) => {
+                          const newBullets = [...proj.bullets];
+                          newBullets[bIdx] = v;
+                          updateProject(idx, { ...proj, bullets: newBullets });
+                        }}
+                        isEditable={isEditable}
+                        placeholder="Impact detail..."
+                        tag="span"
+                      />
+                      {isEditable && proj.bullets.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newBullets = proj.bullets.filter((_, i) => i !== bIdx);
+                            updateProject(idx, { ...proj, bullets: newBullets });
+                          }}
+                          className="bullet-remove-inline"
+                        >
+                          <X size={10} />
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                {isEditable && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateProject(idx, {
+                        ...proj,
+                        bullets: [...proj.bullets, "Engineered performant user interface with sub-second response."],
+                      });
+                    }}
+                    className="resume-add-bullet-btn"
+                  >
+                    <Plus size={10} /> Add bullet
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+/* =========================================================================
+   TEMPLATE 2: CREATIVE MODERN BANNER (Gradient Top Header & 2-Column Grid)
+   ========================================================================= */
+function CreativeBannerTemplate({
+  data,
+  colors,
+  isEditable,
+  updatePersonal,
+  updateSkills,
+  updateExperience,
+  deleteExperience,
+  addExperience,
+  updateProject,
+  deleteProject,
+  addProject,
+  updateEducation,
+  deleteEducation,
+  addEducation,
+  updateCertification,
+  deleteCertification,
+  addCertification,
+  onPhotoUploadClick,
+}: any) {
+  const showPhoto = data.personal.showPhoto && data.personal.photoUrl;
+
+  return (
+    <div
+      className="a4-sheet-container template-creative-banner"
+      style={
+        {
+          "--primary": colors.primary,
+          "--secondary": colors.secondary,
+          "--dark": colors.dark,
+          "--light": colors.light,
+          "--border": colors.border,
+          "--gradient": colors.gradient,
+        } as any
+      }
+    >
+      {/* CREATIVE TOP GRADIENT BANNER */}
+      <header className="banner-top-header" style={{ background: colors.gradient }}>
+        <div className="banner-top-row">
+          {/* Photo Slot */}
+          <div className="banner-photo-box">
+            {showPhoto ? (
+              <div
+                className="banner-photo-wrap"
+                onClick={isEditable ? onPhotoUploadClick : undefined}
+                title={isEditable ? "Click to change photo" : undefined}
+              >
+                <img src={data.personal.photoUrl} alt={data.personal.fullName} className="banner-photo-img" />
+                {isEditable && (
+                  <div className="photo-edit-overlay">
+                    <Camera size={14} />
+                  </div>
+                )}
+              </div>
+            ) : isEditable ? (
+              <button
+                type="button"
+                onClick={onPhotoUploadClick}
+                className="banner-photo-placeholder"
+              >
+                <Camera size={18} />
+                <span>+ Photo</span>
+              </button>
+            ) : null}
+          </div>
+
+          <div className="banner-header-text">
+            <h1 className="banner-name">
+              <InlineField
+                value={data.personal.fullName}
+                onChange={(v) => updatePersonal("fullName", v)}
+                isEditable={isEditable}
+                placeholder="YOUR FULL NAME"
+                tag="span"
+              />
+            </h1>
+            <div className="banner-title-pill">
+              <InlineField
+                value={data.personal.jobTitle}
+                onChange={(v) => updatePersonal("jobTitle", v)}
+                isEditable={isEditable}
+                placeholder="Target Job Title"
+                tag="span"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Contact Strip */}
+        <div className="banner-contact-strip">
+          {(data.personal.email || isEditable) && (
+            <span className="banner-contact-pill">
+              <Mail size={11} />
+              <InlineField
+                value={data.personal.email}
+                onChange={(v) => updatePersonal("email", v)}
+                isEditable={isEditable}
+                placeholder="email@example.com"
+                tag="span"
+              />
+            </span>
+          )}
+          {(data.personal.phone || isEditable) && (
+            <span className="banner-contact-pill">
+              <Phone size={11} />
+              <InlineField
+                value={data.personal.phone}
+                onChange={(v) => updatePersonal("phone", v)}
+                isEditable={isEditable}
+                placeholder="+91 98765 43210"
+                tag="span"
+              />
+            </span>
+          )}
+          {(data.personal.location || isEditable) && (
+            <span className="banner-contact-pill">
+              <MapPin size={11} />
+              <InlineField
+                value={data.personal.location}
+                onChange={(v) => updatePersonal("location", v)}
+                isEditable={isEditable}
+                placeholder="Location"
+                tag="span"
+              />
+            </span>
+          )}
+          {(data.personal.linkedin || isEditable) && (
+            <span className="banner-contact-pill">
+              <Globe size={11} />
+              <InlineField
+                value={data.personal.linkedin}
+                onChange={(v) => updatePersonal("linkedin", v)}
+                isEditable={isEditable}
+                placeholder="LinkedIn"
+                tag="span"
+              />
+            </span>
+          )}
+          {(data.personal.github || isEditable) && (
+            <span className="banner-contact-pill">
+              <FolderGit2 size={11} />
+              <InlineField
+                value={data.personal.github}
+                onChange={(v) => updatePersonal("github", v)}
+                isEditable={isEditable}
+                placeholder="GitHub"
+                tag="span"
+              />
+            </span>
+          )}
+        </div>
+      </header>
+
+      {/* BODY 2-COLUMN SPLIT */}
+      <div className="banner-body-grid">
+        {/* LEFT COLUMN: Summary, Experience & Projects */}
+        <div className="banner-main-col">
+          {/* Summary */}
+          {(data.personal.summary || isEditable) && (
+            <section className="banner-section">
+              <div className="banner-section-heading" style={{ color: colors.text }}>
+                <Sparkles size={14} color={colors.primary} /> ABOUT ME
+              </div>
+              <div className="banner-card-box">
+                <InlineField
+                  value={data.personal.summary}
+                  onChange={(v) => updatePersonal("summary", v)}
+                  isEditable={isEditable}
+                  placeholder="Professional summary statement..."
+                  tag="p"
+                />
+              </div>
+            </section>
+          )}
+
+          {/* Experience */}
+          <section className="banner-section">
+            <div className="section-title-row">
+              <div className="banner-section-heading" style={{ color: colors.text }}>
+                <Briefcase size={14} color={colors.primary} /> EXPERIENCE
+              </div>
+              {isEditable && (
+                <button type="button" onClick={addExperience} className="resume-add-entry-btn">
+                  <Plus size={11} /> Add
+                </button>
+              )}
+            </div>
+
+            <div className="banner-item-stack">
+              {data.experience.map((exp: ExperienceItem, idx: number) => (
+                <div key={exp.id || idx} className="banner-card-box relative-item-group">
+                  {isEditable && (
+                    <button
+                      type="button"
+                      onClick={() => deleteExperience(idx)}
+                      className="resume-delete-entry-btn"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  )}
+                  <div className="banner-item-header">
+                    <strong className="banner-role" style={{ color: colors.dark }}>
+                      <InlineField
+                        value={exp.role}
+                        onChange={(v) => updateExperience(idx, { ...exp, role: v })}
+                        isEditable={isEditable}
+                        placeholder="Role / Title"
+                        tag="span"
+                      />
+                    </strong>
+                    <span className="banner-tag-date" style={{ background: colors.light, color: colors.text }}>
+                      <InlineField
+                        value={exp.startDate}
+                        onChange={(v) => updateExperience(idx, { ...exp, startDate: v })}
+                        isEditable={isEditable}
+                        placeholder="Start"
+                        tag="span"
+                      />
+                      {" – "}
+                      <InlineField
+                        value={exp.endDate}
+                        onChange={(v) => updateExperience(idx, { ...exp, endDate: v })}
+                        isEditable={isEditable}
+                        placeholder="End"
+                        tag="span"
+                      />
+                    </span>
+                  </div>
+                  <div className="banner-company-row">
+                    <InlineField
+                      value={exp.company}
+                      onChange={(v) => updateExperience(idx, { ...exp, company: v })}
+                      isEditable={isEditable}
+                      placeholder="Company"
+                      tag="span"
+                    />
+                    {" | "}
+                    <InlineField
+                      value={exp.location}
+                      onChange={(v) => updateExperience(idx, { ...exp, location: v })}
+                      isEditable={isEditable}
+                      placeholder="Location"
+                      tag="span"
+                    />
+                  </div>
+                  <ul className="banner-bullets">
+                    {exp.bullets.map((bullet: string, bIdx: number) => (
+                      <li key={bIdx} className="bullet-row-editable">
+                        <InlineField
+                          value={bullet}
+                          onChange={(v) => {
+                            const newBullets = [...exp.bullets];
+                            newBullets[bIdx] = v;
+                            updateExperience(idx, { ...exp, bullets: newBullets });
+                          }}
+                          isEditable={isEditable}
+                          placeholder="Accomplishment bullet..."
+                          tag="span"
+                        />
+                        {isEditable && exp.bullets.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newBullets = exp.bullets.filter((_, i) => i !== bIdx);
+                              updateExperience(idx, { ...exp, bullets: newBullets });
+                            }}
+                            className="bullet-remove-inline"
+                          >
+                            <X size={10} />
+                          </button>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                  {isEditable && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateExperience(idx, {
+                          ...exp,
+                          bullets: [...exp.bullets, "Collaborated with agile engineering squad on deliverable."],
+                        });
+                      }}
+                      className="resume-add-bullet-btn"
+                    >
+                      <Plus size={10} /> Add bullet
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Projects */}
+          <section className="banner-section">
+            <div className="section-title-row">
+              <div className="banner-section-heading" style={{ color: colors.text }}>
+                <Terminal size={14} color={colors.primary} /> KEY PROJECTS
+              </div>
+              {isEditable && (
+                <button type="button" onClick={addProject} className="resume-add-entry-btn">
+                  <Plus size={11} /> Add
+                </button>
+              )}
+            </div>
+
+            <div className="banner-item-stack">
+              {data.projects.map((proj: ProjectItem, idx: number) => (
+                <div key={proj.id || idx} className="banner-card-box relative-item-group">
+                  {isEditable && (
+                    <button
+                      type="button"
+                      onClick={() => deleteProject(idx)}
+                      className="resume-delete-entry-btn"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  )}
+                  <div className="banner-item-header">
+                    <strong className="banner-role" style={{ color: colors.dark }}>
+                      <InlineField
+                        value={proj.title}
+                        onChange={(v) => updateProject(idx, { ...proj, title: v })}
+                        isEditable={isEditable}
+                        placeholder="Project Name"
+                        tag="span"
+                      />
+                    </strong>
+                    {proj.link && (
+                      <span className="banner-proj-link">
+                        <InlineField
+                          value={proj.link}
+                          onChange={(v) => updateProject(idx, { ...proj, link: v })}
+                          isEditable={isEditable}
+                          placeholder="Link"
+                          tag="span"
+                        />
+                      </span>
+                    )}
+                  </div>
+                  <div className="banner-tech-stack" style={{ color: colors.text }}>
+                    <em>
+                      Tech:{" "}
+                      <InlineField
+                        value={proj.techStack}
+                        onChange={(v) => updateProject(idx, { ...proj, techStack: v })}
+                        isEditable={isEditable}
+                        placeholder="Tech stack"
+                        tag="span"
+                      />
+                    </em>
+                  </div>
+                  <ul className="banner-bullets">
+                    {proj.bullets.map((bullet: string, bIdx: number) => (
+                      <li key={bIdx} className="bullet-row-editable">
+                        <InlineField
+                          value={bullet}
+                          onChange={(v) => {
+                            const newBullets = [...proj.bullets];
+                            newBullets[bIdx] = v;
+                            updateProject(idx, { ...proj, bullets: newBullets });
+                          }}
+                          isEditable={isEditable}
+                          placeholder="Project details..."
+                          tag="span"
+                        />
+                        {isEditable && proj.bullets.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newBullets = proj.bullets.filter((_, i) => i !== bIdx);
+                              updateProject(idx, { ...proj, bullets: newBullets });
+                            }}
+                            className="bullet-remove-inline"
+                          >
+                            <X size={10} />
+                          </button>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                  {isEditable && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateProject(idx, {
+                          ...proj,
+                          bullets: [...proj.bullets, "Architected high-throughput data processing pipeline."],
+                        });
+                      }}
+                      className="resume-add-bullet-btn"
+                    >
+                      <Plus size={10} /> Add bullet
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        {/* RIGHT COLUMN: Skills, Education, Certs */}
+        <div className="banner-side-col">
+          {/* Skills */}
+          <section className="banner-section">
+            <div className="banner-section-heading" style={{ color: colors.text }}>
+              <Code2 size={14} color={colors.primary} /> SKILLS & STACK
+            </div>
+            <div className="banner-side-card">
+              <div className="banner-skill-group">
+                <strong className="banner-skill-cat" style={{ color: colors.primary }}>
+                  Languages
+                </strong>
+                <div className="banner-skill-val">
+                  <InlineField
+                    value={data.skills.languages}
+                    onChange={(v) => updateSkills("languages", v)}
+                    isEditable={isEditable}
+                    placeholder="Java, Python, C++..."
+                    tag="span"
+                  />
+                </div>
+              </div>
+              <div className="banner-skill-group">
+                <strong className="banner-skill-cat" style={{ color: colors.primary }}>
+                  Frameworks
+                </strong>
+                <div className="banner-skill-val">
+                  <InlineField
+                    value={data.skills.frameworks}
+                    onChange={(v) => updateSkills("frameworks", v)}
+                    isEditable={isEditable}
+                    placeholder="React, Next.js, Node.js..."
+                    tag="span"
+                  />
+                </div>
+              </div>
+              <div className="banner-skill-group">
+                <strong className="banner-skill-cat" style={{ color: colors.primary }}>
+                  Tools & DBs
+                </strong>
+                <div className="banner-skill-val">
+                  <InlineField
+                    value={data.skills.toolsAndDatabases}
+                    onChange={(v) => updateSkills("toolsAndDatabases", v)}
+                    isEditable={isEditable}
+                    placeholder="PostgreSQL, Docker, AWS..."
+                    tag="span"
+                  />
+                </div>
+              </div>
+              <div className="banner-skill-group">
+                <strong className="banner-skill-cat" style={{ color: colors.primary }}>
+                  Competencies
+                </strong>
+                <div className="banner-skill-val">
+                  <InlineField
+                    value={data.skills.coreConcepts}
+                    onChange={(v) => updateSkills("coreConcepts", v)}
+                    isEditable={isEditable}
+                    placeholder="DSA, System Design..."
+                    tag="span"
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Education */}
+          <section className="banner-section">
+            <div className="section-title-row">
+              <div className="banner-section-heading" style={{ color: colors.text }}>
+                <GraduationCap size={14} color={colors.primary} /> EDUCATION
+              </div>
+              {isEditable && (
+                <button type="button" onClick={addEducation} className="resume-add-entry-btn">
+                  <Plus size={11} /> Add
+                </button>
+              )}
+            </div>
+
+            <div className="banner-side-card">
+              {data.education.map((edu: EducationItem, idx: number) => (
+                <div key={edu.id || idx} className="banner-edu-box relative-item-group">
+                  {isEditable && (
+                    <button
+                      type="button"
+                      onClick={() => deleteEducation(idx)}
+                      className="resume-delete-entry-btn"
+                    >
+                      <Trash2 size={11} />
+                    </button>
+                  )}
+                  <strong className="banner-edu-deg" style={{ color: colors.dark }}>
+                    <InlineField
+                      value={edu.degree}
+                      onChange={(v) => updateEducation(idx, { ...edu, degree: v })}
+                      isEditable={isEditable}
+                      placeholder="Degree"
+                      tag="span"
+                    />
+                    {" in "}
+                    <InlineField
+                      value={edu.field}
+                      onChange={(v) => updateEducation(idx, { ...edu, field: v })}
+                      isEditable={isEditable}
+                      placeholder="Field"
+                      tag="span"
+                    />
+                  </strong>
+                  <div className="banner-edu-sch">
+                    <InlineField
+                      value={edu.institution}
+                      onChange={(v) => updateEducation(idx, { ...edu, institution: v })}
+                      isEditable={isEditable}
+                      placeholder="Institution"
+                      tag="span"
+                    />
+                  </div>
+                  <div className="banner-edu-foot">
+                    <span>
+                      <InlineField
+                        value={edu.startDate}
+                        onChange={(v) => updateEducation(idx, { ...edu, startDate: v })}
+                        isEditable={isEditable}
+                        placeholder="2020"
+                        tag="span"
+                      />
+                      {" – "}
+                      <InlineField
+                        value={edu.endDate}
+                        onChange={(v) => updateEducation(idx, { ...edu, endDate: v })}
+                        isEditable={isEditable}
+                        placeholder="2024"
+                        tag="span"
+                      />
+                    </span>
+                    {edu.grade && (
+                      <span className="banner-grade-pill">
+                        <InlineField
+                          value={edu.grade}
+                          onChange={(v) => updateEducation(idx, { ...edu, grade: v })}
+                          isEditable={isEditable}
+                          placeholder="Grade"
+                          tag="span"
+                        />
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Certifications */}
+          {data.certifications.length > 0 && (
+            <section className="banner-section">
+              <div className="section-title-row">
+                <div className="banner-section-heading" style={{ color: colors.text }}>
+                  <Award size={14} color={colors.primary} /> AWARDS & CERTS
+                </div>
+                {isEditable && (
+                  <button type="button" onClick={addCertification} className="resume-add-entry-btn">
+                    <Plus size={11} /> Add
+                  </button>
+                )}
+              </div>
+
+              <div className="banner-side-card">
+                {data.certifications.map((cert: CertificationItem, idx: number) => (
+                  <div key={cert.id || idx} className="banner-cert-box relative-item-group">
+                    {isEditable && (
+                      <button
+                        type="button"
+                        onClick={() => deleteCertification(idx)}
+                        className="resume-delete-entry-btn"
+                      >
+                        <Trash2 size={11} />
+                      </button>
+                    )}
+                    <strong className="banner-cert-title" style={{ color: colors.dark }}>
+                      <InlineField
+                        value={cert.name}
+                        onChange={(v) => updateCertification(idx, { ...cert, name: v })}
+                        isEditable={isEditable}
+                        placeholder="Certificate"
+                        tag="span"
+                      />
+                    </strong>
+                    <div className="banner-cert-org">
+                      <InlineField
+                        value={cert.issuer}
+                        onChange={(v) => updateCertification(idx, { ...cert, issuer: v })}
+                        isEditable={isEditable}
+                        placeholder="Issuer"
+                        tag="span"
+                      />{" "}
+                      ({cert.date})
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
+   TEMPLATE 3: MODERN TECH EXECUTIVE
    ========================================================================= */
 function ModernTechTemplate({
   data,
@@ -299,9 +1635,12 @@ function ModernTechTemplate({
   const showPhoto = data.personal.showPhoto && data.personal.photoUrl;
 
   return (
-    <div className="resume-sheet template-modern" style={{ "--primary": colors.primary } as any}>
+    <div
+      className="a4-sheet-container template-modern"
+      style={{ "--primary": colors.primary, "--light": colors.light, "--border": colors.border } as any}
+    >
       {/* Header Banner */}
-      <header className="modern-header" style={{ borderBottom: `2px solid ${colors.primary}` }}>
+      <header className="modern-header" style={{ borderBottom: `2.5px solid ${colors.primary}` }}>
         <div className="modern-header-row">
           {/* Photo Slot */}
           {(showPhoto || isEditable) && (
@@ -407,24 +1746,12 @@ function ModernTechTemplate({
               )}
               {(data.personal.github || isEditable) && (
                 <span>
-                  <ExternalLink size={12} style={{ color: colors.primary }} />
+                  <FolderGit2 size={12} style={{ color: colors.primary }} />
                   <InlineField
                     value={data.personal.github}
                     onChange={(v) => updatePersonal("github", v)}
                     isEditable={isEditable}
                     placeholder="github.com/username"
-                    tag="span"
-                  />
-                </span>
-              )}
-              {(data.personal.portfolio || isEditable) && (
-                <span>
-                  <Globe size={12} style={{ color: colors.primary }} />
-                  <InlineField
-                    value={data.personal.portfolio}
-                    onChange={(v) => updatePersonal("portfolio", v)}
-                    isEditable={isEditable}
-                    placeholder="portfolio.dev"
                     tag="span"
                   />
                 </span>
@@ -445,7 +1772,7 @@ function ModernTechTemplate({
               value={data.personal.summary}
               onChange={(v) => updatePersonal("summary", v)}
               isEditable={isEditable}
-              placeholder="Write a concise professional summary highlighting your key strengths, domain expertise, and career achievements..."
+              placeholder="Write a concise professional summary highlighting your key strengths..."
               tag="p"
             />
           </div>
@@ -586,7 +1913,7 @@ function ModernTechTemplate({
                         updateExperience(expIdx, { ...exp, bullets: newBullets });
                       }}
                       isEditable={isEditable}
-                      placeholder="Describe your achievement and impact..."
+                      placeholder="Describe your achievement..."
                       tag="span"
                     />
                     {isEditable && exp.bullets.length > 1 && (
@@ -641,7 +1968,6 @@ function ModernTechTemplate({
                   type="button"
                   onClick={() => deleteProject(pIdx)}
                   className="resume-delete-entry-btn"
-                  title="Remove this project"
                 >
                   <Trash2 size={12} />
                 </button>
@@ -665,7 +1991,7 @@ function ModernTechTemplate({
                         value={proj.techStack}
                         onChange={(v) => updateProject(pIdx, { ...proj, techStack: v })}
                         isEditable={isEditable}
-                        placeholder="Technologies (e.g. Next.js, Go, Redis)"
+                        placeholder="Technologies"
                         tag="span"
                       />
                     </em>
@@ -694,7 +2020,7 @@ function ModernTechTemplate({
                         updateProject(pIdx, { ...proj, bullets: newBullets });
                       }}
                       isEditable={isEditable}
-                      placeholder="Describe what you built and the results achieved..."
+                      placeholder="Describe project details..."
                       tag="span"
                     />
                     {isEditable && proj.bullets.length > 1 && (
@@ -705,7 +2031,6 @@ function ModernTechTemplate({
                           updateProject(pIdx, { ...proj, bullets: newBullets });
                         }}
                         className="bullet-remove-inline"
-                        title="Delete bullet"
                       >
                         <X size={10} />
                       </button>
@@ -750,7 +2075,6 @@ function ModernTechTemplate({
                   type="button"
                   onClick={() => deleteEducation(eIdx)}
                   className="resume-delete-entry-btn"
-                  title="Remove education"
                 >
                   <Trash2 size={12} />
                 </button>
@@ -769,7 +2093,7 @@ function ModernTechTemplate({
                     value={edu.field}
                     onChange={(v) => updateEducation(eIdx, { ...edu, field: v })}
                     isEditable={isEditable}
-                    placeholder="Field of Study"
+                    placeholder="Field"
                     tag="span"
                   />
                 </strong>
@@ -796,7 +2120,7 @@ function ModernTechTemplate({
                   value={edu.institution}
                   onChange={(v) => updateEducation(eIdx, { ...edu, institution: v })}
                   isEditable={isEditable}
-                  placeholder="Institution Name"
+                  placeholder="Institution"
                   tag="span"
                 />
                 {", "}
@@ -814,7 +2138,7 @@ function ModernTechTemplate({
                     value={edu.grade}
                     onChange={(v) => updateEducation(eIdx, { ...edu, grade: v })}
                     isEditable={isEditable}
-                    placeholder="GPA / Score (e.g. 8.8 / 10)"
+                    placeholder="GPA: 8.8 / 10"
                     tag="span"
                   />
                 </div>
@@ -842,7 +2166,6 @@ function ModernTechTemplate({
                   type="button"
                   onClick={() => deleteCertification(cIdx)}
                   className="resume-delete-entry-btn"
-                  title="Remove certification"
                 >
                   <Trash2 size={12} />
                 </button>
@@ -853,7 +2176,7 @@ function ModernTechTemplate({
                     value={cert.name}
                     onChange={(v) => updateCertification(cIdx, { ...cert, name: v })}
                     isEditable={isEditable}
-                    placeholder="Certificate Name"
+                    placeholder="Certificate"
                     tag="span"
                   />
                 </strong>
@@ -862,7 +2185,7 @@ function ModernTechTemplate({
                     value={cert.date}
                     onChange={(v) => updateCertification(cIdx, { ...cert, date: v })}
                     isEditable={isEditable}
-                    placeholder="Year / Date"
+                    placeholder="Year"
                     tag="span"
                   />
                 </span>
@@ -872,7 +2195,7 @@ function ModernTechTemplate({
                   value={cert.issuer}
                   onChange={(v) => updateCertification(cIdx, { ...cert, issuer: v })}
                   isEditable={isEditable}
-                  placeholder="Issuing Organization (e.g. AWS, Meta)"
+                  placeholder="Issuer"
                   tag="span"
                 />
               </div>
@@ -885,7 +2208,7 @@ function ModernTechTemplate({
 }
 
 /* =========================================================================
-   TEMPLATE 2: CLASSIC ATS MINIMALIST (Harvard / Google Standard)
+   TEMPLATE 4: CLASSIC ATS MINIMALIST (Harvard / Google Standard)
    ========================================================================= */
 function ClassicATSTemplate({
   data,
@@ -910,7 +2233,7 @@ function ClassicATSTemplate({
   const showPhoto = data.personal.showPhoto && data.personal.photoUrl;
 
   return (
-    <div className="resume-sheet template-classic">
+    <div className="a4-sheet-container template-classic">
       {/* Centered Clean Header */}
       <header className="classic-header">
         <div className="classic-header-flex">
@@ -993,7 +2316,7 @@ function ClassicATSTemplate({
         </div>
       </header>
 
-      {/* Professional Summary */}
+      {/* Summary */}
       {(data.personal.summary || isEditable) && (
         <section className="classic-section">
           <h2 className="classic-section-title">SUMMARY</h2>
@@ -1026,7 +2349,6 @@ function ClassicATSTemplate({
                 type="button"
                 onClick={() => deleteEducation(idx)}
                 className="resume-delete-entry-btn"
-                title="Remove education"
               >
                 <Trash2 size={12} />
               </button>
@@ -1091,7 +2413,7 @@ function ClassicATSTemplate({
                   value={edu.endDate}
                   onChange={(v) => updateEducation(idx, { ...edu, endDate: v })}
                   isEditable={isEditable}
-                  placeholder="Graduation Year"
+                  placeholder="Graduation"
                   tag="span"
                 />
               </span>
@@ -1120,7 +2442,7 @@ function ClassicATSTemplate({
               value={data.skills.frameworks}
               onChange={(v) => updateSkills("frameworks", v)}
               isEditable={isEditable}
-              placeholder="React, Next.js, Node.js, Express..."
+              placeholder="React, Next.js, Node.js..."
               tag="span"
             />
           </div>
@@ -1130,7 +2452,7 @@ function ClassicATSTemplate({
               value={data.skills.toolsAndDatabases}
               onChange={(v) => updateSkills("toolsAndDatabases", v)}
               isEditable={isEditable}
-              placeholder="PostgreSQL, MongoDB, Docker, Git, AWS..."
+              placeholder="PostgreSQL, MongoDB, Docker, Git..."
               tag="span"
             />
           </div>
@@ -1164,7 +2486,6 @@ function ClassicATSTemplate({
                 type="button"
                 onClick={() => deleteExperience(idx)}
                 className="resume-delete-entry-btn"
-                title="Remove experience"
               >
                 <Trash2 size={12} />
               </button>
@@ -1239,7 +2560,6 @@ function ClassicATSTemplate({
                         updateExperience(idx, { ...exp, bullets: newBullets });
                       }}
                       className="bullet-remove-inline"
-                      title="Delete bullet"
                     >
                       <X size={10} />
                     </button>
@@ -1279,7 +2599,6 @@ function ClassicATSTemplate({
                 type="button"
                 onClick={() => deleteProject(idx)}
                 className="resume-delete-entry-btn"
-                title="Remove project"
               >
                 <Trash2 size={12} />
               </button>
@@ -1338,7 +2657,6 @@ function ClassicATSTemplate({
                         updateProject(idx, { ...proj, bullets: newBullets });
                       }}
                       className="bullet-remove-inline"
-                      title="Delete bullet"
                     >
                       <X size={10} />
                     </button>
@@ -1405,7 +2723,6 @@ function ClassicATSTemplate({
                   type="button"
                   onClick={() => deleteCertification(idx)}
                   className="bullet-remove-inline"
-                  title="Remove certification"
                 >
                   <Trash2 size={11} />
                 </button>
@@ -1419,7 +2736,7 @@ function ClassicATSTemplate({
 }
 
 /* =========================================================================
-   TEMPLATE 3: COMPACT STANFORD EXECUTIVE
+   TEMPLATE 5: COMPACT STANFORD EXECUTIVE
    ========================================================================= */
 function CompactStanfordTemplate({
   data,
@@ -1444,7 +2761,10 @@ function CompactStanfordTemplate({
   const showPhoto = data.personal.showPhoto && data.personal.photoUrl;
 
   return (
-    <div className="resume-sheet template-compact" style={{ "--primary": colors.primary } as any}>
+    <div
+      className="a4-sheet-container template-compact"
+      style={{ "--primary": colors.primary, "--light": colors.light, "--border": colors.border } as any}
+    >
       {/* Top Banner Header */}
       <header className="compact-header" style={{ borderLeft: `5px solid ${colors.primary}`, paddingLeft: 14 }}>
         <div className="compact-header-row">
@@ -1563,7 +2883,7 @@ function CompactStanfordTemplate({
               value={data.personal.summary}
               onChange={(v) => updatePersonal("summary", v)}
               isEditable={isEditable}
-              placeholder="Summary of qualifications and engineering background..."
+              placeholder="Summary of qualifications..."
               tag="p"
             />
           </div>
@@ -1628,7 +2948,6 @@ function CompactStanfordTemplate({
                 type="button"
                 onClick={() => deleteExperience(idx)}
                 className="resume-delete-entry-btn"
-                title="Remove experience"
               >
                 <Trash2 size={12} />
               </button>
@@ -1700,7 +3019,6 @@ function CompactStanfordTemplate({
                         updateExperience(idx, { ...exp, bullets: newBullets });
                       }}
                       className="bullet-remove-inline"
-                      title="Delete bullet"
                     >
                       <X size={10} />
                     </button>
@@ -1742,7 +3060,6 @@ function CompactStanfordTemplate({
                 type="button"
                 onClick={() => deleteProject(idx)}
                 className="resume-delete-entry-btn"
-                title="Remove project"
               >
                 <Trash2 size={12} />
               </button>
@@ -1803,7 +3120,6 @@ function CompactStanfordTemplate({
                         updateProject(idx, { ...proj, bullets: newBullets });
                       }}
                       className="bullet-remove-inline"
-                      title="Delete bullet"
                     >
                       <X size={10} />
                     </button>
@@ -1845,7 +3161,6 @@ function CompactStanfordTemplate({
                 type="button"
                 onClick={() => deleteEducation(idx)}
                 className="resume-delete-entry-btn"
-                title="Remove education"
               >
                 <Trash2 size={12} />
               </button>
