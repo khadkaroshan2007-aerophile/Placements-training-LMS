@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, BookOpen, Bot, BrainCircuit, BriefcaseBusiness, ChartNoAxesColumnIncreasing, ChevronRight, CircleHelp, ClipboardCheck, GraduationCap, LayoutDashboard, LogOut, Sparkles, Timer } from "lucide-react";
+import { Bell, BookOpen, BrainCircuit, BriefcaseBusiness, ChartNoAxesColumnIncreasing, ChevronRight, CircleHelp, ClipboardCheck, LayoutDashboard, LogOut, Sparkles, Timer } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { PublicUser } from "@/lib/auth";
 import { clearAllResidualAndGuestData, setActiveUserScope } from "@/lib/user-progress-storage";
@@ -16,7 +16,6 @@ const nav = [
   { label: "Interview coach", href: "/interview-coach", icon: BrainCircuit },
 ];
 const workspace = [
-  { label: "Faculty space", href: "/faculty", icon: GraduationCap },
   { label: "Placement office", href: "/placement", icon: BriefcaseBusiness },
 ];
 
