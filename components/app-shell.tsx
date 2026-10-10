@@ -11,6 +11,7 @@ import {
   ChevronRight,
   CircleHelp,
   ClipboardCheck,
+  Code2,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -26,6 +27,7 @@ import { ThemeToggle } from "./theme-toggle";
 const nav = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "Courses", href: "/courses", icon: BookOpen },
+  { label: "Coding practice", href: "/coding-practice", icon: Code2 },
   { label: "Assessments", href: "/assessments", icon: ClipboardCheck },
   { label: "Mock tests", href: "/mock-tests", icon: Timer },
   { label: "My progress", href: "/progress", icon: ChartNoAxesColumnIncreasing },
