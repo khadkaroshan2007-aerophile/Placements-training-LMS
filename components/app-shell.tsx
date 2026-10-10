@@ -9,7 +9,6 @@ import { clearAllResidualAndGuestData, setActiveUserScope } from "@/lib/user-pro
 
 const nav = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { label: "AI Tutor", href: "/ai-tutor", icon: Bot },
   { label: "Courses", href: "/courses", icon: BookOpen },
   { label: "Assessments", href: "/assessments", icon: ClipboardCheck },
   { label: "Mock tests", href: "/mock-tests", icon: Timer },

@@ -47,16 +47,16 @@ export default async function DashboardPage() {
       <section className="card section-card">
         <div className="card-title-row">
           <div>
-            <h2>24/7 Placement AI Mentor</h2>
-            <p className="subtle">Get instant guidance on coding algorithms, math shortcuts, or interview answers</p>
+            <h2>Timed Mock Tests (25 Mins)</h2>
+            <p className="subtle">Simulate real placement exams with 20 questions across DSA, Aptitude, CS Core & HR</p>
           </div>
-          <span className="tag" style={{ background: "#ede9fe", color: "#6d28d9" }}>GEMINI AI</span>
+          <span className="tag" style={{ background: "#ede9fe", color: "#6d28d9" }}>20 QUESTIONS</span>
         </div>
         <p style={{ fontSize: 13, color: "var(--ink)", lineHeight: 1.6, margin: "10px 0 16px" }}>
-          Have a doubt in Two Pointers, Dynamic Programming, Work-Rate math, or the STAR storytelling framework? Ask the Gemini AI Tutor anytime.
+          Practice under authentic placement exam conditions with live timers, question palettes, instant scorecards, and verified solutions.
         </p>
-        <Link className="learning-button" href="/ai-tutor" style={{ display: "inline-flex", alignItems: "center", gap: 6, width: "fit-content" }}>
-          Open Gemini AI Tutor <ArrowRight size={13} />
+        <Link className="learning-button" href="/mock-tests" style={{ display: "inline-flex", alignItems: "center", gap: 6, width: "fit-content" }}>
+          Explore Mock Tests <ArrowRight size={13} />
         </Link>
       </section>
       <section className="card section-card next-step">
