@@ -2,18 +2,21 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Archive,
   ArrowRight,
   Award,
   BarChart3,
   BookOpen,
+  Briefcase,
   Calendar,
   CheckCircle2,
   ChevronRight,
   Clock,
   Download,
   Eye,
+  FileSearch,
   FileText,
   Flame,
   HelpCircle,
@@ -42,13 +45,18 @@ import {
 import { getActiveUserScope, setActiveUserScope } from "@/lib/user-progress-storage";
 import { useLearningState } from "@/components/learning-state";
 import { ErrorState } from "@/components/error-state";
+import { JobsPortalView } from "@/components/placement-office/jobs-portal-view";
+import { ResumeAnalyzerView } from "@/components/placement-office/resume-analyzer-view";
 
 export function PlacementInsights() {
+  const pathname = usePathname();
   const { state, ready, syncEnabled, syncError, setState } = useLearningState();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [mockResults, setMockResults] = useState<MockTestResult[]>([]);
   const [monthlyReports, setMonthlyReports] = useState<MonthlyReport[]>([]);
-  const [activeTab, setActiveTab] = useState<"assessments" | "mocks" | "monthly">("assessments");
+  const [activeTab, setActiveTab] = useState<
+    "jobs" | "resume-analyzer" | "assessments" | "mocks" | "monthly"
+  >(pathname?.includes("/placement") ? "jobs" : "assessments");
 
   // Comparison graph time range: 3, 6, 9, or 12 months
   const [compareMonthsRange, setCompareMonthsRange] = useState<3 | 6 | 9 | 12>(6);
@@ -362,8 +370,78 @@ ${rep.growthInsight}
         </div>
       </section>
 
-      {/* THREE PRIMARY CATEGORY TABS */}
+      {/* PRIMARY CATEGORY TABS */}
       <div style={{ display: "flex", gap: 10, borderBottom: "2px solid #e2e8f0", paddingBottom: 0, marginBottom: 24, flexWrap: "wrap" }}>
+        <button
+          type="button"
+          onClick={() => setActiveTab("jobs")}
+          style={{
+            padding: "12px 18px",
+            fontSize: 14,
+            fontWeight: 700,
+            border: 0,
+            background: "transparent",
+            color: activeTab === "jobs" ? "var(--purple, #4f46e5)" : "#64748b",
+            borderBottom: activeTab === "jobs" ? "3px solid var(--purple, #4f46e5)" : "3px solid transparent",
+            marginBottom: -2,
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            transition: "all 0.15s ease",
+          }}
+        >
+          <Briefcase size={17} />
+          <span>Live Jobs & Drives</span>
+          <span
+            style={{
+              fontSize: 11,
+              background: activeTab === "jobs" ? "#4f46e5" : "#e2e8f0",
+              color: activeTab === "jobs" ? "#fff" : "#475569",
+              padding: "2px 8px",
+              borderRadius: 12,
+              fontWeight: 800,
+            }}
+          >
+            Internet Live
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("resume-analyzer")}
+          style={{
+            padding: "12px 18px",
+            fontSize: 14,
+            fontWeight: 700,
+            border: 0,
+            background: "transparent",
+            color: activeTab === "resume-analyzer" ? "var(--purple, #4f46e5)" : "#64748b",
+            borderBottom: activeTab === "resume-analyzer" ? "3px solid var(--purple, #4f46e5)" : "3px solid transparent",
+            marginBottom: -2,
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            transition: "all 0.15s ease",
+          }}
+        >
+          <Sparkles size={17} style={{ color: "#d97706" }} />
+          <span>AI Resume Analyzer</span>
+          <span
+            style={{
+              fontSize: 11,
+              background: activeTab === "resume-analyzer" ? "#d97706" : "#fef3c7",
+              color: activeTab === "resume-analyzer" ? "#fff" : "#92400e",
+              padding: "2px 8px",
+              borderRadius: 12,
+              fontWeight: 800,
+            }}
+          >
+            Groq Llama 3.3
+          </span>
+        </button>
+
         <button
           type="button"
           onClick={() => setActiveTab("assessments")}
@@ -384,7 +462,7 @@ ${rep.growthInsight}
           }}
         >
           <Layers size={17} />
-          <span>Assessments Tests Progress</span>
+          <span>Assessments Progress</span>
           <span
             style={{
               fontSize: 11,
@@ -454,7 +532,7 @@ ${rep.growthInsight}
           }}
         >
           <LineChart size={17} />
-          <span>Monthly Reports & Progress Comparison</span>
+          <span>Monthly Reports</span>
           <span
             style={{
               fontSize: 11,
@@ -471,7 +549,17 @@ ${rep.growthInsight}
       </div>
 
       {/* ========================================================
-          CATEGORY 1: ASSESSMENTS TESTS PROGRESS
+          TAB 1: LIVE TECH JOBS & INTERNSHIPS
+      ======================================================== */}
+      {activeTab === "jobs" && <JobsPortalView />}
+
+      {/* ========================================================
+          TAB 2: GROQ AI RESUME ANALYZER
+      ======================================================== */}
+      {activeTab === "resume-analyzer" && <ResumeAnalyzerView />}
+
+      {/* ========================================================
+          TAB 3: ASSESSMENTS TESTS PROGRESS
       ======================================================== */}
       {activeTab === "assessments" && (
         <div>
