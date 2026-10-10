@@ -47,6 +47,8 @@ export interface ResumeData {
     github: string;
     portfolio: string;
     summary: string;
+    photoUrl?: string;
+    showPhoto?: boolean;
   };
   skills: {
     languages: string;
@@ -75,6 +77,8 @@ export const sampleResumeData: ResumeData = {
     portfolio: "alexrivera.dev",
     summary:
       "Results-driven Computer Science graduate with hands-on experience in full-stack web development, scalable microservices, and distributed systems. Proficient in Next.js, Python, TypeScript, and AWS. Proven track record of architecting performant apps with 99.9% uptime and optimizing database queries for high-traffic platforms.",
+    photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240&auto=format&fit=crop&q=80",
+    showPhoto: true,
   },
   skills: {
     languages: "Java, Python, TypeScript, JavaScript, C++, SQL",

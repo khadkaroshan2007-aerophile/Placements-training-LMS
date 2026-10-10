@@ -3135,7 +3135,7 @@ button:focus-visible, a:focus-visible {
 }
 
 /* =========================================
-   AI RESUME BUILDER STYLES
+   AI RESUME BUILDER & DIRECT CANVAS EDITING
    ========================================= */
 .resume-studio-grid {
   display: grid;
@@ -3148,6 +3148,299 @@ button:focus-visible, a:focus-visible {
   .resume-studio-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.resume-direct-edit-hint {
+  background: var(--accent-subtle);
+  border: 1px dashed var(--purple);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--purple);
+  margin-bottom: 12px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Inline Direct Editable Styling */
+.resume-inline-editable {
+  outline: none;
+  cursor: text;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  border-radius: 3px;
+  display: inline-block;
+  min-width: 24px;
+}
+
+.resume-inline-editable:hover {
+  background-color: rgba(99, 102, 241, 0.08);
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3);
+}
+
+.resume-inline-editable:focus {
+  background-color: rgba(99, 102, 241, 0.12);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
+}
+
+/* Resume Photo Styles */
+.modern-header-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.modern-photo-container {
+  flex-shrink: 0;
+}
+
+.modern-photo-wrap {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--primary, #4f46e5);
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modern-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.modern-photo-placeholder {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modern-photo-placeholder:hover {
+  border-color: var(--primary, #4f46e5);
+  background: #eef2ff;
+  color: var(--primary, #4f46e5);
+}
+
+.classic-header-flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.classic-header-content {
+  flex: 1;
+}
+
+.classic-photo-wrap {
+  width: 68px;
+  height: 68px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #0f172a;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.classic-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.compact-header-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.compact-photo-container {
+  flex-shrink: 0;
+}
+
+.compact-photo-wrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--primary, #4f46e5);
+  position: relative;
+  cursor: pointer;
+}
+
+.compact-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.compact-photo-placeholder {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.photo-edit-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.modern-photo-wrap:hover .photo-edit-overlay,
+.classic-photo-wrap:hover .photo-edit-overlay,
+.compact-photo-wrap:hover .photo-edit-overlay {
+  opacity: 1;
+}
+
+.photo-thumbnail {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid var(--purple);
+  flex-shrink: 0;
+}
+
+.photo-placeholder-circle {
+  width: 100%;
+  height: 100%;
+  background: var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Resume In-Canvas Dynamic Entry Controls */
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.resume-add-entry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px dashed var(--line);
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.resume-add-entry-btn:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+  background: var(--accent-subtle);
+}
+
+.relative-item-group {
+  position: relative;
+}
+
+.resume-delete-entry-btn {
+  position: absolute;
+  top: 0;
+  right: -24px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: var(--card-bg);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.relative-item-group:hover .resume-delete-entry-btn {
+  opacity: 0.85;
+}
+
+.resume-delete-entry-btn:hover {
+  opacity: 1 !important;
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.bullet-row-editable {
+  position: relative;
+}
+
+.bullet-remove-inline {
+  position: absolute;
+  right: -16px;
+  top: 2px;
+  border: 0;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.bullet-row-editable:hover .bullet-remove-inline {
+  opacity: 1;
+}
+
+.bullet-remove-inline:hover {
+  color: #ef4444;
+}
+
+.resume-add-bullet-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: none;
+  background: transparent;
+  color: #6366f1;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 4px;
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.resume-add-bullet-btn:hover {
+  text-decoration: underline;
 }
 
 .resume-paper-shadow {
@@ -3175,7 +3468,7 @@ button:focus-visible, a:focus-visible {
     print-color-adjust: exact !important;
   }
 
-  /* Hide app chrome, sidebar, nav, controls */
+  /* Hide app chrome, sidebar, nav, controls, inline edit helpers */
   aside,
   nav,
   header,
@@ -3185,7 +3478,16 @@ button:focus-visible, a:focus-visible {
   .resume-header-bar,
   .resume-form-pane,
   .resume-preview-controls,
+  .resume-customizer-bar,
+  .resume-direct-edit-hint,
   .resume-nav-tabs,
+  .resume-add-entry-btn,
+  .resume-delete-entry-btn,
+  .resume-add-bullet-btn,
+  .bullet-remove-inline,
+  .photo-edit-overlay,
+  .modern-photo-placeholder,
+  .compact-photo-placeholder,
   button,
   .no-print {
     display: none !important;
@@ -3196,7 +3498,8 @@ button:focus-visible, a:focus-visible {
   .page-container,
   main,
   .resume-studio-grid,
-  .resume-preview-pane {
+  .resume-preview-pane,
+  .resume-paper-scroller {
     display: block !important;
     width: 100% !important;
     margin: 0 !important;
@@ -3204,6 +3507,7 @@ button:focus-visible, a:focus-visible {
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
+    transform: none !important;
   }
 
   #printable-resume {
@@ -3216,8 +3520,10 @@ button:focus-visible, a:focus-visible {
     border: none !important;
     border-radius: 0 !important;
     background: #ffffff !important;
+    transform: none !important;
     page-break-after: avoid;
     break-after: avoid;
   }
 }
+
 

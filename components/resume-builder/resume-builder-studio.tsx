@@ -1,19 +1,22 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Award,
   Briefcase,
+  Camera,
   CheckCircle2,
   ChevronDown,
   ChevronRight,
   ChevronUp,
   Download,
+  Edit3,
   Eye,
   FileCode,
   FileText,
   GraduationCap,
+  Image as ImageIcon,
   Layers,
   Palette,
   Plus,
@@ -22,6 +25,7 @@ import {
   RotateCcw,
   Sparkles,
   Trash2,
+  Upload,
   User,
   Wand2,
   ZoomIn,
@@ -45,6 +49,25 @@ import {
 } from "@/lib/resume-storage";
 import { ResumeRenderer } from "./resume-templates";
 
+const AVATAR_PRESETS = [
+  {
+    label: "Professional 1",
+    url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240&auto=format&fit=crop&q=80",
+  },
+  {
+    label: "Professional 2",
+    url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=240&auto=format&fit=crop&q=80",
+  },
+  {
+    label: "Professional 3",
+    url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=240&auto=format&fit=crop&q=80",
+  },
+  {
+    label: "Professional 4",
+    url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=240&auto=format&fit=crop&q=80",
+  },
+];
+
 export function ResumeBuilderStudio() {
   const [resume, setResume] = useState<ResumeData>(sampleResumeData);
   const [templateId, setTemplateId] = useState<ResumeTemplateId>("modern");
@@ -55,7 +78,10 @@ export function ResumeBuilderStudio() {
   const [mobileTab, setMobileTab] = useState<"edit" | "preview">("edit");
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [showAtsModal, setShowAtsModal] = useState(false);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [isDirectEditable, setIsDirectEditable] = useState(true);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const draft = getStoredResumeDraft();
@@ -101,6 +127,8 @@ export function ResumeBuilderStudio() {
           github: "",
           portfolio: "",
           summary: "",
+          photoUrl: "",
+          showPhoto: false,
         },
         skills: {
           languages: "",
@@ -117,6 +145,33 @@ export function ResumeBuilderStudio() {
     }
   }
 
+  // Handle Photo File Upload
+  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check size limit (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image size must be under 5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      updateResume({
+        ...resume,
+        personal: {
+          ...resume.personal,
+          photoUrl: result,
+          showPhoto: true,
+        },
+      });
+      setShowPhotoModal(false);
+    };
+    reader.readAsDataURL(file);
+  }
+
   // AI Summary Enhancement
   function handleAiSummaryGenerate() {
     setIsAiLoading(true);
@@ -124,8 +179,8 @@ export function ResumeBuilderStudio() {
       const role = resume.personal.jobTitle || "Software Engineer";
       const langs = resume.skills.languages || "modern technologies";
       const summaryOptions = [
-        `Results-oriented ${role} with strong foundational expertise in ${langs}. Demonstrated ability to architect high-performance web applications, optimize backend latency, and deliver scalable full-stack features. Passionate about problem-solving, clean code architecture, and high-impact engineering.`,
-        `High-performing ${role} equipped with solid proficiency in ${langs} and distributed software design. Proven track record of developing reliable software systems, collaborating in cross-functional Agile environments, and shipping production-ready code with 99.9% reliability.`,
+        `Results-oriented ${role} with strong foundational expertise in ${langs}. Demonstrated ability to architect high-performance web applications, optimize backend latency, and deliver scalable full-stack features. Passionate about clean code architecture, problem-solving, and high-impact engineering.`,
+        `High-performing ${role} equipped with solid proficiency in ${langs} and distributed software design. Proven track record of developing reliable software systems, collaborating in cross-functional Agile environments, and shipping production-ready code with 99.9% uptime.`,
       ];
       const selected = summaryOptions[Math.floor(Math.random() * summaryOptions.length)];
       updateResume({
@@ -263,18 +318,37 @@ export function ResumeBuilderStudio() {
 
   return (
     <div className="content resume-builder-page">
+      {/* Hidden File Input for Image Upload */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={handleFileUpload}
+      />
+
       {/* Top Header & Toolbar */}
       <div className="resume-builder-header">
         <div>
-          <div className="eyebrow">AI RESUME BUILDER</div>
+          <div className="eyebrow">CUSTOMIZABLE RESUME BUILDER</div>
           <h1 style={{ fontSize: 24, margin: "4px 0 2px" }}>Placement Resume Studio</h1>
           <p style={{ color: "var(--muted)", margin: 0, fontSize: 13 }}>
-            Build, polish with AI, and download ATS-compliant resumes in multiple formats.
+            Edit details directly on the sample resume or use the form, customize photo & templates, and export to PDF.
           </p>
         </div>
 
         {/* Action Buttons */}
         <div className="resume-builder-actions">
+          <button
+            type="button"
+            className="learning-button secondary"
+            onClick={() => setShowPhotoModal(true)}
+            style={{ fontSize: 12, padding: "8px 12px" }}
+            title="Upload or change resume photo"
+          >
+            <Camera size={14} color="var(--purple)" /> Photo Options
+          </button>
+
           <button
             type="button"
             className="learning-button secondary"
@@ -320,7 +394,7 @@ export function ResumeBuilderStudio() {
           className={mobileTab === "preview" ? "active" : ""}
           onClick={() => setMobileTab("preview")}
         >
-          <Eye size={14} /> Live Preview
+          <Eye size={14} /> Direct Resume Canvas
         </button>
       </div>
 
@@ -335,7 +409,7 @@ export function ResumeBuilderStudio() {
               className={activeFormTab === "personal" ? "active" : ""}
               onClick={() => setActiveFormTab("personal")}
             >
-              <User size={14} /> Personal
+              <User size={14} /> Personal & Photo
             </button>
             <button
               type="button"
@@ -383,9 +457,67 @@ export function ResumeBuilderStudio() {
 
           {/* Form Content Area */}
           <div className="resume-form-body">
-            {/* 1. PERSONAL INFO */}
+            {/* 1. PERSONAL INFO & PHOTO */}
             {activeFormTab === "personal" && (
               <div className="animate-fade-in form-section-wrap">
+                {/* Photo Upload Widget */}
+                <div className="card resume-photo-card" style={{ marginBottom: 16, padding: 14 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <div
+                        className="photo-thumbnail"
+                        onClick={() => setShowPhotoModal(true)}
+                        title="Click to change photo"
+                      >
+                        {resume.personal.photoUrl && resume.personal.showPhoto ? (
+                          <img
+                            src={resume.personal.photoUrl}
+                            alt="Profile"
+                            style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
+                          />
+                        ) : (
+                          <div className="photo-placeholder-circle">
+                            <Camera size={18} color="var(--muted)" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <strong style={{ fontSize: 13, display: "block", color: "var(--ink)" }}>
+                          Profile Photo & Headshot
+                        </strong>
+                        <span style={{ fontSize: 11, color: "var(--muted)" }}>
+                          {resume.personal.showPhoto ? "Visible on resume" : "Hidden from resume"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <button
+                        type="button"
+                        className="learning-button secondary"
+                        style={{ fontSize: 11, padding: "5px 10px" }}
+                        onClick={() => setShowPhotoModal(true)}
+                      >
+                        <Camera size={12} /> {resume.personal.photoUrl ? "Change Photo" : "Add Photo"}
+                      </button>
+
+                      <label className="toggle-label-wrap" style={{ fontSize: 11, display: "inline-flex", alignItems: "center", gap: 5, cursor: "pointer" }}>
+                        <input
+                          type="checkbox"
+                          checked={Boolean(resume.personal.showPhoto)}
+                          onChange={(e) =>
+                            updateResume({
+                              ...resume,
+                              personal: { ...resume.personal, showPhoto: e.target.checked },
+                            })
+                          }
+                        />
+                        <span>Show on resume</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
                 <h3 className="form-section-title">Personal Contact Details</h3>
                 <div className="form-grid-2">
                   <label className="resume-label">
@@ -659,14 +791,16 @@ export function ResumeBuilderStudio() {
                               className="learning-button secondary"
                               style={{ fontSize: 10, padding: "4px 8px" }}
                               onClick={() => handleAiPolishBullets("experience", exp.id)}
-                              title="Polish bullet points into STAR format"
+                              disabled={isAiLoading}
+                              title="Enhance bullets with high-impact action verbs and metrics"
                             >
-                              <Sparkles size={11} /> AI Polish Bullets
+                              <Sparkles size={11} /> AI Polish
                             </button>
                             <button
                               type="button"
                               className="resume-delete-btn"
                               onClick={() => removeExperience(exp.id)}
+                              title="Remove"
                             >
                               <Trash2 size={13} />
                             </button>
@@ -675,27 +809,11 @@ export function ResumeBuilderStudio() {
 
                         <div className="form-grid-2" style={{ marginTop: 10 }}>
                           <label className="resume-label">
-                            Company Name
+                            Job Title / Position
                             <input
                               type="text"
                               className="resume-input"
-                              placeholder="e.g. Google / Microsoft / Startup"
-                              value={exp.company}
-                              onChange={(e) => {
-                                const updated = resume.experience.map((item) =>
-                                  item.id === exp.id ? { ...item, company: e.target.value } : item
-                                );
-                                updateResume({ ...resume, experience: updated });
-                              }}
-                            />
-                          </label>
-
-                          <label className="resume-label">
-                            Role / Title
-                            <input
-                              type="text"
-                              className="resume-input"
-                              placeholder="e.g. Software Engineer Intern"
+                              placeholder="e.g. Software Engineering Intern"
                               value={exp.role}
                               onChange={(e) => {
                                 const updated = resume.experience.map((item) =>
@@ -707,15 +825,15 @@ export function ResumeBuilderStudio() {
                           </label>
 
                           <label className="resume-label">
-                            Start Date
+                            Company Name
                             <input
                               type="text"
                               className="resume-input"
-                              placeholder="e.g. Jan 2024"
-                              value={exp.startDate}
+                              placeholder="e.g. TechCorp Solutions"
+                              value={exp.company}
                               onChange={(e) => {
                                 const updated = resume.experience.map((item) =>
-                                  item.id === exp.id ? { ...item, startDate: e.target.value } : item
+                                  item.id === exp.id ? { ...item, company: e.target.value } : item
                                 );
                                 updateResume({ ...resume, experience: updated });
                               }}
@@ -723,15 +841,40 @@ export function ResumeBuilderStudio() {
                           </label>
 
                           <label className="resume-label">
-                            End Date
+                            Location
                             <input
                               type="text"
                               className="resume-input"
-                              placeholder="e.g. Jun 2024 or Present"
-                              value={exp.endDate}
+                              placeholder="e.g. Bangalore, India / Remote"
+                              value={exp.location}
                               onChange={(e) => {
                                 const updated = resume.experience.map((item) =>
-                                  item.id === exp.id ? { ...item, endDate: e.target.value } : item
+                                  item.id === exp.id ? { ...item, location: e.target.value } : item
+                                );
+                                updateResume({ ...resume, experience: updated });
+                              }}
+                            />
+                          </label>
+
+                          <label className="resume-label">
+                            Dates (Start – End)
+                            <input
+                              type="text"
+                              className="resume-input"
+                              placeholder="e.g. Jan 2024 – Jun 2024"
+                              value={`${exp.startDate} – ${exp.current ? "Present" : exp.endDate}`}
+                              onChange={(e) => {
+                                const parts = e.target.value.split("–").map((p) => p.trim());
+                                const isCurr = (parts[1] || "").toLowerCase() === "present";
+                                const updated = resume.experience.map((item) =>
+                                  item.id === exp.id
+                                    ? {
+                                        ...item,
+                                        startDate: parts[0] || "",
+                                        endDate: isCurr ? "" : parts[1] || "",
+                                        current: isCurr,
+                                      }
+                                    : item
                                 );
                                 updateResume({ ...resume, experience: updated });
                               }}
@@ -742,12 +885,12 @@ export function ResumeBuilderStudio() {
                         {/* Bullet Points */}
                         <div style={{ marginTop: 12 }}>
                           <label className="resume-label">
-                            Key Achievements & Responsibilities (1 per line)
+                            Key Accomplishments & Metrics (1 per line)
                           </label>
                           <textarea
                             className="resume-textarea"
                             rows={3}
-                            placeholder="Enter bullet points (one per line)..."
+                            placeholder="Enter accomplishments (one per line)..."
                             value={exp.bullets.join("\n")}
                             onChange={(e) => {
                               const bullets = e.target.value.split("\n");
@@ -769,7 +912,7 @@ export function ResumeBuilderStudio() {
             {activeFormTab === "projects" && (
               <div className="animate-fade-in form-section-wrap">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                  <h3 className="form-section-title" style={{ margin: 0 }}>Featured Projects</h3>
+                  <h3 className="form-section-title" style={{ margin: 0 }}>Featured Technical Projects</h3>
                   <button
                     type="button"
                     className="learning-button"
@@ -785,7 +928,7 @@ export function ResumeBuilderStudio() {
                     <Layers size={28} style={{ color: "var(--muted)", margin: "0 auto 8px" }} />
                     <p>No projects added yet.</p>
                     <button type="button" className="learning-button secondary" onClick={addProject}>
-                      + Add Key Project
+                      + Add First Project
                     </button>
                   </div>
                 ) : (
@@ -800,6 +943,7 @@ export function ResumeBuilderStudio() {
                               className="learning-button secondary"
                               style={{ fontSize: 10, padding: "4px 8px" }}
                               onClick={() => handleAiPolishBullets("project", proj.id)}
+                              disabled={isAiLoading}
                             >
                               <Sparkles size={11} /> AI Polish
                             </button>
@@ -819,7 +963,7 @@ export function ResumeBuilderStudio() {
                             <input
                               type="text"
                               className="resume-input"
-                              placeholder="e.g. PlacePrep AI LMS"
+                              placeholder="e.g. PlacePrep AI"
                               value={proj.title}
                               onChange={(e) => {
                                 const updated = resume.projects.map((item) =>
@@ -831,11 +975,11 @@ export function ResumeBuilderStudio() {
                           </label>
 
                           <label className="resume-label">
-                            Technologies Used
+                            Tech Stack Used
                             <input
                               type="text"
                               className="resume-input"
-                              placeholder="e.g. Next.js, TypeScript, Supabase, Tailwind"
+                              placeholder="e.g. Next.js 15, TypeScript, Tailwind CSS"
                               value={proj.techStack}
                               onChange={(e) => {
                                 const updated = resume.projects.map((item) =>
@@ -1065,6 +1209,29 @@ export function ResumeBuilderStudio() {
         <div className={`resume-preview-pane ${mobileTab === "preview" ? "mobile-show" : ""}`}>
           {/* Preview Customization Bar */}
           <div className="resume-customizer-bar">
+            {/* Direct Edit / Clean View Mode Switcher */}
+            <div className="customizer-group">
+              <span className="customizer-label">Editing Mode:</span>
+              <div className="template-select-pills">
+                <button
+                  type="button"
+                  className={isDirectEditable ? "active" : ""}
+                  onClick={() => setIsDirectEditable(true)}
+                  title="Click directly on the resume text to edit in place"
+                >
+                  <Edit3 size={12} /> Direct Edit
+                </button>
+                <button
+                  type="button"
+                  className={!isDirectEditable ? "active" : ""}
+                  onClick={() => setIsDirectEditable(false)}
+                  title="View clean print preview"
+                >
+                  <Eye size={12} /> Preview
+                </button>
+              </div>
+            </div>
+
             {/* Template Selector */}
             <div className="customizer-group">
               <span className="customizer-label">Template:</span>
@@ -1148,6 +1315,13 @@ export function ResumeBuilderStudio() {
             </div>
           </div>
 
+          {/* Direct Edit Helper Hint */}
+          {isDirectEditable && (
+            <div className="resume-direct-edit-hint">
+              <span>✍️ <strong>Direct Edit Mode Enabled:</strong> Click and type directly on any section, text, or photo on the resume sample below to customize your details!</span>
+            </div>
+          )}
+
           {/* Scaled Printable Document Container */}
           <div className="resume-paper-scroller">
             <div
@@ -1155,11 +1329,160 @@ export function ResumeBuilderStudio() {
               id="printable-resume"
               style={{ transform: `scale(${zoomLevel})`, transformOrigin: "top center" }}
             >
-              <ResumeRenderer data={resume} templateId={templateId} accentColor={accentColor} />
+              <ResumeRenderer
+                data={resume}
+                templateId={templateId}
+                accentColor={accentColor}
+                isEditable={isDirectEditable}
+                onUpdate={updateResume}
+                onPhotoUploadClick={() => setShowPhotoModal(true)}
+              />
             </div>
           </div>
         </div>
       </div>
+
+      {/* PHOTO MANAGEMENT MODAL */}
+      {showPhotoModal && (
+        <div className="ats-modal-backdrop" onClick={() => setShowPhotoModal(false)}>
+          <div className="card ats-modal-card animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <div className="ats-modal-header">
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span className="stat-icon" style={{ width: 38, height: 38, borderRadius: 10 }}>
+                  <Camera size={18} />
+                </span>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 16 }}>Resume Profile Photo</h3>
+                  <p style={{ margin: 0, fontSize: 11, color: "var(--muted)" }}>
+                    Upload your headshot or choose an avatar
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="mobile-drawer-close"
+                onClick={() => setShowPhotoModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ margin: "16px 0", display: "grid", gap: 16 }}>
+              {/* Current Photo Preview & Upload Button */}
+              <div style={{ display: "flex", alignItems: "center", gap: 16, background: "var(--card-subtle)", padding: 14, borderRadius: 12 }}>
+                <div style={{ width: 72, height: 72, borderRadius: "50%", overflow: "hidden", border: "2px solid var(--purple)", flexShrink: 0, background: "var(--card-bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {resume.personal.photoUrl ? (
+                    <img src={resume.personal.photoUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <User size={32} color="var(--muted)" />
+                  )}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <button
+                    type="button"
+                    className="learning-button"
+                    style={{ fontSize: 12, padding: "8px 14px", marginBottom: 8 }}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload size={13} /> Upload Photo from Device
+                  </button>
+                  <p style={{ margin: 0, fontSize: 11, color: "var(--muted)" }}>
+                    Supports PNG, JPG, JPEG, WEBP. Max 5MB.
+                  </p>
+                </div>
+              </div>
+
+              {/* Toggle Visibility */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "var(--card-bg)", borderRadius: 10, border: "1px solid var(--line)" }}>
+                <div>
+                  <strong style={{ fontSize: 13, display: "block", color: "var(--ink)" }}>Show Photo on Resume</strong>
+                  <span style={{ fontSize: 11, color: "var(--muted)" }}>Toggle whether headshot renders in PDF / preview</span>
+                </div>
+                <input
+                  type="checkbox"
+                  style={{ width: 18, height: 18, cursor: "pointer" }}
+                  checked={Boolean(resume.personal.showPhoto)}
+                  onChange={(e) =>
+                    updateResume({
+                      ...resume,
+                      personal: { ...resume.personal, showPhoto: e.target.checked },
+                    })
+                  }
+                />
+              </div>
+
+              {/* Sample Presets */}
+              <div>
+                <strong style={{ fontSize: 12, display: "block", marginBottom: 8, color: "var(--ink)" }}>
+                  Or Choose from Sample Professional Avatars:
+                </strong>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+                  {AVATAR_PRESETS.map((preset, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => {
+                        updateResume({
+                          ...resume,
+                          personal: {
+                            ...resume.personal,
+                            photoUrl: preset.url,
+                            showPhoto: true,
+                          },
+                        });
+                      }}
+                      style={{
+                        cursor: "pointer",
+                        border: resume.personal.photoUrl === preset.url ? "2px solid var(--purple)" : "1px solid var(--line)",
+                        borderRadius: 10,
+                        padding: 6,
+                        textAlign: "center",
+                        background: "var(--card-bg)",
+                        transition: "transform 0.15s ease",
+                      }}
+                    >
+                      <img
+                        src={preset.url}
+                        alt={preset.label}
+                        style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", margin: "0 auto 4px" }}
+                      />
+                      <span style={{ fontSize: 10, color: "var(--muted)", display: "block" }}>{preset.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Remove Photo */}
+              {resume.personal.photoUrl && (
+                <div style={{ display: "flex", justifyContent: "flex-start" }}>
+                  <button
+                    type="button"
+                    className="learning-button secondary"
+                    style={{ fontSize: 11, padding: "6px 12px", color: "#dc2626" }}
+                    onClick={() => {
+                      updateResume({
+                        ...resume,
+                        personal: { ...resume.personal, photoUrl: "", showPhoto: false },
+                      });
+                    }}
+                  >
+                    <Trash2 size={12} /> Remove Current Photo
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
+              <button
+                type="button"
+                className="learning-button"
+                onClick={() => setShowPhotoModal(false)}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ATS SCORE & OPTIMIZATION MODAL */}
       {showAtsModal && (
@@ -1291,4 +1614,3 @@ function calculateAtsScore(data: ResumeData): {
 
   return { score: Math.min(100, score), checklist };
 }
-
